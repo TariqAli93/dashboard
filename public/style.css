@@ -1,0 +1,28 @@
+body {
+    direction: rtl;
+    font-family: 'DroidArabicKufiRegular';
+    font-weight: normal;
+    font-style: normal;
+    min-height: 100vh;
+    overflow: auto !important;
+}
+
+h1,h2,h3,h4,h5,h6,span,p,b,strong,small,a,li,ul,label,table,th,tr,td,input.form-control, button.btn {
+    font-family: 'DroidArabicKufiRegular';
+    font-weight: normal;
+    font-style: normal;
+}
+
+.ivu-notice-notice {
+    direction: ltr;
+}
+
+.print-main .ivu-input[disabled], fieldset[disabled] .ivu-input {
+    background-color: white !important;
+    color: black !important;
+}
+
+.ivu-modal-close {
+    right: unset !important;
+    left: 8px !important;
+}
