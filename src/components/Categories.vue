@@ -72,13 +72,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="name">اسم التصنيف</label>
-                        <input type="text" name="name" id="name" class="form-control" v-model="name">
+                        <input type="text" required name="name" id="name" class="form-control" v-model="name">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="file">صورة التصنيف</label>
-                        <input type="file" name="file" id="file" class="form-control" @change="getFileFromInput">
+                        <input type="file" required name="file" id="file" class="form-control" @change="getFileFromInput">
                     </div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
                     }
                 }).then((result) => {
                     this.categories = result.data;
-                    console.log(result)
+                    console.log(this.categories)
                 }).catch((err) => {
                     console.error(err);
                 });
@@ -189,6 +189,7 @@
                     Name: this.name,
                     ImageUri: this.filePath,
                 };
+                
                 this.$Loading.start();
                 this.axios.post(`${baseUrl}/category/addCategory`,
                 object,
@@ -198,7 +199,7 @@
                         Authorization: "bearer " + token
                     }
                 }).then((result) => {
-                    console.log(result);
+                    this.categories.unshift(object);
                     this.$Message.success('تمت الاضافة بنجاح');
                     this.$Loading.finish();
                 }).catch((err) => {
@@ -236,18 +237,24 @@
             },
             remove(id, index) {
                 let token = localStorage.getItem('token');
-                this.axios.delete(`${baseUrl}/category/deleteCategory?id=${id}`, 
-                {
-                    headers: {
-                        Authorization: "bearer " + token
-                    }
-                }).then((result) => {
-                    console.log(result);
-                }).catch((err) => {
-                    console.error(err);
-                });
-                this.categories.splice(index, 1);
-                this.$Message.success('delet item with id: ' + id);
+                var confrimDelete = confirm("هل انت واثق من حذف التصنيف ؟");
+                if(confrimDelete == false) {
+                    this.$Message.error("لم يتم حذف التصنيف");
+                    return false;
+                }else {
+                    this.axios.delete(`${baseUrl}/category/deleteCategory?id=${id}`, 
+                    {
+                        headers: {
+                            Authorization: "bearer " + token
+                        }
+                    }).then((result) => {
+                        console.log(result);
+                    }).catch((err) => {
+                        console.error(err);
+                    });
+                    this.categories.splice(index, 1);
+                    this.$Message.success('تم حذف التصنيف بنجاح');
+                }
             },
         }
     }

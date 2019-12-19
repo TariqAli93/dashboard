@@ -26,3 +26,7 @@ h1,h2,h3,h4,h5,h6,span,p,b,strong,small,a,li,ul,label,table,th,tr,td,input.form-
     right: unset !important;
     left: 8px !important;
 }
+
+.confirmDeleteClass .ivu-modal-body {
+    padding: 0px !important;
+}

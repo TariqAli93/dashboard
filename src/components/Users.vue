@@ -12,43 +12,46 @@
                 </div>
               </div>
           </div>
-          <div class="custom-table w-100">
-              <table class="table table-borderless ">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">اسم المستخدم</th>
-                        <th scope="col">رقم المستخدم</th>
-                        <th scope="col">عنوان المستخدم</th>
-                        <th scope="col">صلاحيات</th>
-                        <th scope="col">تاريخ الانشاء</th>
-                        <th scope="col">تاريخ الانتهاء</th>
-                        <th scope="col">تعديل / حذف</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(data, index) of users" :key="data.name">
-                        <td scope="row">{{ data.id }}</td>
-                        <td scope="row">{{ data.username }}</td>
-                        <td scope="row">{{ data.userInfo.mobileNo }}</td>
-                        <td scope="row">{{ data.userInfo.address1 }}</td>
-                        <td scope="row">
-                            <span v-for="(role) in data.userRole" :key="role.roleId">
-                                <b v-if="role.roleId == 1">Admin </b>
-                                <b v-if="role.roleId == 2">Provider </b>
-                                <b v-if="role.roleId == 4">SuperAdmin </b>
-                                <b v-if="role.roleId == 3">User </b>
-                            </span>
-                        </td>
-                        <td scope="row">{{ data.validFrom }}</td>
-                        <td scope="row">{{ data.validTo }}</td>
-                        <td scope="row">
-                            <button class="btn btn-warning ml-2" @click="modal1 = true; updateId = data.id"><Icon type="ios-create-outline" /></button>
-                            <button class="btn btn-danger" @click="remove(data.id, index)"><Icon type="ios-trash-outline" /></button>
-                        </td>
-                    </tr>  
-                </tbody>
-            </table>
+          <div class="custom-table w-100 ">
+              <div class="table-responsive-xl">
+                <table class="table table-borderless ">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">اسم المستخدم</th>
+                            <th scope="col">رقم المستخدم</th>
+                            <th scope="col">عنوان المستخدم</th>
+                            <th scope="col">صلاحيات</th>
+                            <th scope="col">تاريخ الانشاء</th>
+                            <th scope="col">تاريخ الانتهاء</th>
+                            <th scope="col">تعديل / حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="userRole" v-for="(data, index) of users" :key="data.name">
+                            <td scope="row">{{ data.id }}</td>
+                            <td scope="row">{{ data.username }}</td>
+                            <td scope="row">{{ data.userInfo.mobileNo }}</td>
+                            <td scope="row">{{ data.userInfo.address1 }}</td>
+                            <td scope="row">
+                                <span v-for="role in data.userRole" :key="role.roleId">
+                                    <b v-if="role.roleId == 1">Admin </b>
+                                    <b v-else-if="role.roleId == 2">Provider </b>
+                                    <b v-else-if="role.roleId == 4">SuperAdmin </b>
+                                    <b v-else>User </b>
+                                </span>
+                            </td>
+                            <td scope="row">{{ data.validFrom }}</td>
+                            <td scope="row">{{ data.validTo }}</td>
+                            <td scope="row">
+                                <button class="btn btn-primary" @click="showImages()">الصور</button>
+                                <button class="btn btn-warning ml-2" @click="modal1 = true; updateId = data.id"><Icon type="ios-create-outline" /></button>
+                                <button class="btn btn-danger" @click="remove(data.id, index)"><Icon type="ios-trash-outline" /></button>
+                            </td>
+                        </tr>  
+                    </tbody>
+                </table>
+            </div>   
           </div>
       </div>
 
@@ -129,6 +132,7 @@ export default {
             updateMobile: '',
             updateAddress: '',
             updateValidTo: '',
+            isSuperAdmin: false,
             governorate: [
             {
               "name":'اربيل',
@@ -219,8 +223,9 @@ export default {
                 }
             }).then((result) => {
                 this.users = result.data;
+                let leng = result.data.length;
                 this.usersFilterd = result.data;
-                console.log(this.users);
+                console.log(result.data);
             }).catch((err) => {
                 console.error(err);
             });
@@ -264,25 +269,43 @@ export default {
             this.$Message.success('UpDate Item With Id: ' + id);
         },
 
+        findRoleId(nameKey, myArray){
+            for (var i=0; i < myArray.length; i++) {
+                if (myArray[i] === nameKey) {
+                    return myArray[i];
+                }
+            }
+        },
+
         remove(id, index) {
             let self = this;
-            let token = localStorage.getItem('token');
-            this.$Loading.start();
-            self.axios.delete(`${baseUrl}/users/deleteUser?id=${id}`, 
-            {
-                headers: {
-                    Authorization: "bearer " + token
-                }
-            }).then((result) => {
-                console.log(result);
-                this.users.splice(index, 1);
-                this.$Message.success('تم الخذف بنجاح');
-                this.$Loading.finish();
-            }).catch((err) => {
-                console.log(err);
-                this.$Message.error('خطاء في حذف المستخدم');
-                this.$Loading.error();
-            });
+            var confirmDelete = confirm("هل انت واثق من حذف هذا المستخدم");
+            if(confirmDelete) {
+                let token = localStorage.getItem('token');
+                this.$Loading.start();
+                self.axios.delete(`${baseUrl}/users/deleteUser?id=${id}`, 
+                {
+                    headers: {
+                        Authorization: "bearer " + token
+                    }
+                }).then((result) => {
+                    console.log(result);
+                    this.users.splice(index, 1);
+                    this.$Message.success('تم الخذف بنجاح');
+                    this.$Loading.finish();
+                }).catch((err) => {
+                    console.log(err);
+                    this.$Message.error('خطاء في حذف المستخدم');
+                    this.$Loading.error();
+                });
+            } else {
+                this.$Message.success('لن يتم حذف المستخدم');
+                return false;
+            }
+        },
+
+        doDelete() {
+            this.confirmDelete = true;
         }
     }
 }
@@ -293,6 +316,7 @@ export default {
     display: block;
     height: 100%;
     width: 100%;
+
 
     .no-selected {
         display: flex;

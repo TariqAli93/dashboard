@@ -63,13 +63,25 @@
               <div class="logo">
                   <img src="./assets/logo.png" />
               </div>
-              <div class="form-control">
-                  <Input prefix="ios-contact" type="text" size="large" v-model="mobileNumber" id="mobileNumber" name="mobileNumber" class="form-control-input" />
-              </div>
 
-              <div class="form-control">
-                  <Input prefix="ios-lock" type="password" size="large" v-model="password" id="password" name="password" class="form-control-input" password />
-              </div>
+                <div v-if="errors">
+                    <div class="alert alert-danger p-3 mb-3">
+                        {{ errors }}
+                    </div>
+                </div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text pr-2 pl-2"><Icon type="ios-contact-outline" /></div>
+                    </div>
+                    <input class="form-control p-4" type="text" size="large" v-model="mobileNumber" id="mobileNumber" name="mobileNumber" placeholder="اسم المستخدم">
+                </div>
+
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text pr-2 pl-2"><Icon type="ios-lock" /></div>
+                    </div>
+                    <input class="form-control p-4" type="password" size="large" v-model="password" id="password" name="password" placeholder="كلمة المرور">
+                </div>
 
               <Button type="success" size="large" icon="ios-arrow-round-forward" long @click="login">تسجيل الدخول</Button>
           </form>
@@ -85,6 +97,7 @@ export default {
             mobileNumber: '',
             password: '',
             token: '',
+            errors: ''
         }
     },
     beforeCreate() {
@@ -117,7 +130,10 @@ export default {
             return JSON.parse(jsonPayload);
         },
         login() {
-            if(this.mobileNumber && this.password) {
+            if(this.mobileNumber == '' || this.password == '') {
+                this.errors = 'البيانات غير صحيحة . يرجا ادخال البيانات';
+            }else {
+                this.errors = '';
                 this.$Loading.start();
                 const options = {
                     headers: {
@@ -164,17 +180,6 @@ export default {
                         this.$Message.error('تحقق من صحة المعلومات');
                     },1500);
                 });
-            } else {
-                this.$Notice.error({
-                    title: 'Mobile Error',
-                    desc: 'Mobile Number Empty',
-                    duration: 120
-                });
-                this.$Notice.error({
-                    title: 'Password Error',
-                    desc: 'Password Empty',
-                    duration: 120
-                });
             }
         },
         logout() {
@@ -215,6 +220,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 @media print  {
     #sidebar {
         display: none !important;
@@ -269,13 +275,17 @@ div#main-view {
         border-radius: 10px;
         box-shadow: 0 2px 10px 0 rgba(black , .10);
 
-
-        .ivu-input {
-            padding-left: 32px !important;;
-            padding-top: 19px !important;;
-            padding-bottom: 19px !important;
-            background: #0000001a
+        .input-group-text {
+            background: white;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
         }
+
+         .form-control {
+             border-top-left-radius: 10px;
+             border-bottom-left-radius: 10px;
+             padding-right: 10px !important;
+         }
         
 
         .logo {

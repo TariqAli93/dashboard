@@ -16,14 +16,14 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="username">اسم المستخدم</label>
-                      <input type="text" class="form-control" id="username" v-model="username" name="username">
+                      <input type="text" required class="form-control" id="username" v-model="username" name="username">
                     </div>
                   </div>
                   
                   <div class="col">
                     <div class="form-group">
                       <label for="password">كلمة المرور</label>
-                      <input type="text" class="form-control" v-model="password" id="password" name="password">
+                      <input type="text" required class="form-control" v-model="password" id="password" name="password">
                     </div>
                   </div>
                 </div>
@@ -32,7 +32,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="jobCategory">المهنة</label>
-                      <select name="jobCategory" id="jobCategory" v-model="jobCategory" class="form-control">
+                      <select name="jobCategory" required id="jobCategory" v-model="jobCategory" class="form-control">
                         <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
                       </select>
                     </div>
@@ -41,7 +41,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="mobileNo">رقم الهاتف</label>
-                      <input type="tel" pattern="[+ 0-9]{14}" class="form-control" v-model="mobileNo" id="mobileNo" name="mobileNo">
+                      <input type="tel" required pattern="[+ 0-9]{14}" class="form-control" v-model="mobileNo" id="mobileNo" name="mobileNo">
                     </div>
                   </div>
                 </div>
@@ -50,14 +50,14 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="validTo">تاريخ الانتهاء</label>
-                      <input type="date" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))" class="form-control" v-model="validTo" id="validTo" name="validTo">
+                      <input type="date" required pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))" class="form-control" v-model="validTo" id="validTo" name="validTo">
                     </div>
                   </div>
 
                   <div class="col">
                     <div class="form-group">
                       <label for="fileToUp">مستمسكات الزبون</label>
-                      <input type="file" multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
+                      <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
                     </div>
                   </div>
                 </div>
@@ -66,7 +66,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="address1">العنوان الحالي</label>
-                      <select name="address1" id="address1" v-model="address" class="form-control">
+                      <select name="address1" required id="address1" v-model="address" class="form-control">
                         <option v-for="gover in governorate" :key="gover.id" :value="gover.name">{{ gover.name }}</option>
                       </select>
                     </div>
@@ -75,7 +75,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="district">القضاء / الناحية</label>
-                      <input type="text" class="form-control" id="district" name="district" v-model="district">
+                      <input type="text" required class="form-control" id="district" name="district" v-model="district">
                     </div>
                   </div>
                 </div>
@@ -84,7 +84,7 @@
                   <div class="col-6">
                     <div class="form-group">
                       <label for="closesPoint">اقرب نقطة دالة</label>
-                      <input type="text" class="form-control" id="closesPoint" name="closesPoint" v-model="closesPoint">
+                      <input type="text" required class="form-control" id="closesPoint" name="closesPoint" v-model="closesPoint">
                     </div>
                   </div>
 
@@ -93,21 +93,21 @@
                       <div class="col-4">
                         <div class="form-group">
                           <label for="zqaq">زقاق</label>
-                          <input type="text" class="form-control" id="zqaq" name="zqaq" v-model="zqaq">
+                          <input type="text" required class="form-control" id="zqaq" name="zqaq" v-model="zqaq">
                         </div>
                       </div>
 
                       <div class="col-4">
                         <div class="form-group">
                           <label for="mahla">محلة</label>
-                          <input type="text" class="form-control" id="mahla" name="mahla" v-model="mahala">
+                          <input type="text" required class="form-control" id="mahla" name="mahla" v-model="mahala">
                         </div>
                       </div>
 
                       <div class="col-4">
                         <div class="form-group">
                           <label for="aldar">رقم الدار</label>
-                          <input type="text" class="form-control" id="aldar" name="aldar" v-model="dar">
+                          <input type="text" required class="form-control" id="aldar" name="aldar" v-model="dar">
                         </div>
                       </div>
                     </div>
@@ -132,14 +132,14 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="username">اسم المستخدم</label>
-                      <input type="text" class="form-control" id="username" v-model="username" name="username">
+                      <input type="text" required class="form-control" id="username" v-model="username" name="username">
                     </div>
                   </div>
                   
                   <div class="col">
                     <div class="form-group">
                       <label for="password">كلمة المرور</label>
-                      <input type="text" class="form-control" v-model="password" id="password" name="password">
+                      <input type="text" required class="form-control" v-model="password" id="password" name="password">
                     </div>
                   </div>
                 </div>
@@ -148,14 +148,14 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="fileToUp">مستمسكات الزبون</label>
-                      <input type="file" multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
+                      <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
                     </div>
                   </div>
                   
                   <div class="col">
                     <div class="form-group">
                       <label for="mobileNo">رقم الهاتف</label>
-                      <input type="tel" pattern="[+ 0-9]{14}" class="form-control" v-model="mobileNo" id="mobileNo" name="mobileNo">
+                      <input type="tel" required pattern="[+ 0-9]{14}" class="form-control" v-model="mobileNo" id="mobileNo" name="mobileNo">
                     </div>
                   </div>
                 </div>
@@ -164,7 +164,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="address1">العنوان الحالي</label>
-                      <select name="address1" id="address1" v-model="address" class="form-control">
+                      <select name="address1" required id="address1" v-model="address" class="form-control">
                         <option v-for="gover in governorate" :key="gover.id" :value="gover.name">{{ gover.name }}</option>
                       </select>
                     </div>
@@ -173,7 +173,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="validTo">تاريخ الانتهاء</label>
-                      <input type="date" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))" class="form-control" v-model="validTo" id="validTo" name="validTo">
+                      <input type="date" required pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))" class="form-control" v-model="validTo" id="validTo" name="validTo">
                     </div>
                   </div>
                 </div>
@@ -192,14 +192,14 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="username">اسم المستخدم</label>
-                      <input type="text" class="form-control" id="username" v-model="username" name="username">
+                      <input type="text" required class="form-control" id="username" v-model="username" name="username">
                     </div>
                   </div>
                   
                   <div class="col">
                     <div class="form-group">
                       <label for="password">كلمة المرور</label>
-                      <input type="text" class="form-control" v-model="password" id="password" name="password">
+                      <input type="text" required class="form-control" v-model="password" id="password" name="password">
                     </div>
                   </div>
                 </div>
@@ -208,14 +208,14 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="fileToUp">مستمسكات الزبون</label>
-                      <input type="file" multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
+                      <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
                     </div>
                   </div>
                   
                   <div class="col">
                     <div class="form-group">
                       <label for="mobileNo">رقم الهاتف</label>
-                      <input type="tel" pattern="[+ 0-9]{14}" class="form-control" v-model="mobileNo" id="mobileNo" name="mobileNo">
+                      <input type="tel" required pattern="[+ 0-9]{14}" class="form-control" v-model="mobileNo" id="mobileNo" name="mobileNo">
                     </div>
                   </div>
                 </div>
@@ -224,7 +224,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="address1">العنوان الحالي</label>
-                      <select name="address1" id="address1" v-model="address" class="form-control">
+                      <select name="address1" id="address1" v-model="address" required class="form-control">
                         <option v-for="gover in governorate" :key="gover.id" :value="gover.name">{{ gover.name }}</option>
                       </select>
                     </div>
@@ -233,7 +233,7 @@
                   <div class="col">
                     <div class="form-group">
                       <label for="validTo">تاريخ الانتهاء</label>
-                      <input type="date" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))" class="form-control" v-model="validTo" id="validTo" name="validTo">
+                      <input type="date" required pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))" class="form-control" v-model="validTo" id="validTo" name="validTo">
                     </div>
                   </div>
                 </div>
@@ -271,6 +271,7 @@ export default {
           zqaq: '',
           mahala: '',
           dar: '',
+          okDelete: false,
           governorate: [
             {
               "name":'اربيل',

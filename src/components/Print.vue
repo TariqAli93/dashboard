@@ -8,9 +8,6 @@
                 <div>
                     <img src="../assets/print-h1.jpg">
                 </div>
-                <div>
-                    <img src="../assets/logo.png">
-                </div>
             </header>
             <div>
                 <div id="top">
@@ -38,7 +35,7 @@
                         </div>
 
                         <div class="col">
-                            <div class="section">
+                            <div class="section" style="margin-top: 10px;">
                                 <span>الناحية / القضاء</span>
                                 <span class="parmas">{{ params2.district }}</span>
                             </div>
@@ -98,6 +95,20 @@
                 </div>
             </div>
         </div>    
+
+        <Modal v-model="fmodal" :closable="false" :mask-closable="false" footer-hide fullscreen title="رفع العقد">
+            <Upload
+                multiple
+                type="drag"
+                :headers= "headerUpload"
+                :on-success="onsuccess"
+                action="http://23.238.35.18:5300/api/account/uploadDocumentsImage">
+                <div style="display: flex; align-items: center; justify-content: center; height: 100vh">
+                    <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
+                    <p>قم برفع العقد الموقع </p>
+                </div>
+            </Upload>
+        </Modal>
     </div>
 </template>
 
@@ -109,9 +120,16 @@ export default {
             params: '',
             params2: '',
             job: '',
+            token: '',
+            headerUpload: '',
+            fmodal: false,
         }
     },
     mounted() {
+        this.token = localStorage.getItem('token');
+        this.headerUpload = {
+            Authorization: 'bearer ' + this.token
+        };
         this.params = this.$route.params.object;
         this.params2 = this.$route.params.areas;
         console.log(this.$route.params);
@@ -119,8 +137,15 @@ export default {
         setTimeout(() => {
             window.print();
         }, 2000);
+        setTimeout(() => {
+            this.fmodal = true;
+        }, 2500)
     },
     methods: {
+        onsuccess() {
+            this.$Message.success("تم الرفع بنجاح");
+            this.fmodal = false;
+        },
         getJobName(id) {
             let token = localStorage.getItem('token');
             this.axios.get(`${baseUrl}/category/getCategory?id=${id}`, 
@@ -134,7 +159,7 @@ export default {
             }).catch((err) => {
                 console.log(err);                
             });
-        }
+        },
     }
 }
 </script>
@@ -146,15 +171,18 @@ export default {
     }
 }
 
+div#main-content  {
+    padding: 10px !important;
+}
 .print-main {
-    padding: 10px;
+    padding: 3px;
 }
 
 header {
     display: flex;
     margin-bottom: 30px;
     border-bottom: 2px solid rgba(black , .10);
-    padding: 20px;
+    padding: 10px;
     align-items: center;
     justify-content: space-between;
     
@@ -162,13 +190,17 @@ header {
     div {
         img {
             display: block;
-            width: 300px;
-        }
-
-        &:not(:last-child) {
-            margin-left: 10px;
+            width: 120px;
         }
     }
+}
+
+span {
+    font-size: 30px;
+}
+
+li {
+    font-size: 25px;
 }
 
 #top {
@@ -180,17 +212,17 @@ header {
         display: flex;
 
         &:not(:last-child) {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .parmas {
             border: 2px solid rgba(black , .10);
             width: 400px !important;
-            padding: 10px 10px;
+            padding: 5px 10px;
         }
 
         span:not(.params) {
-            width: 120px;
+            width: 275px;
         }
     }
 }
@@ -208,7 +240,7 @@ header {
 
 .commitment {
     display: block;
-    padding: 25px;
+    padding: 10px;
     border: 2px solid #00000026;
     border-radius: 10px;
 
@@ -222,7 +254,7 @@ header {
     span {
       margin-bottom: 10px;
       display: block;
-      font-size: 0.82rem;
+      font-size: 20px;
     }
   }
 
