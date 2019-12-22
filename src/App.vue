@@ -123,7 +123,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text pr-2 pl-2"><Icon type="ios-contact-outline" /></div>
                     </div>
-                    <input class="form-control p-4" type="text" size="large" v-model="mobileNumber" id="mobileNumber" name="mobileNumber" placeholder="اسم المستخدم">
+                    <input class="form-control p-4" type="text" size="large" v-model="mobileNumber" id="mobileNumber" name="mobileNumber" placeholder="رقم الهاتف">
                 </div>
 
                 <div class="input-group mb-2">

@@ -112,7 +112,7 @@
             this.aid();
             this.getCategories();
             this.userId = this.adminId;
-            this.imageFolder = 'http://23.238.35.18:5300';
+            this.imageFolder = 'http://mehtaj.srittwo.me';
         },
         methods: {
             getCategories() {

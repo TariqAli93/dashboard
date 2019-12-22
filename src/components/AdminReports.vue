@@ -4,21 +4,21 @@
       <div class="row">
           <div class="col">
             <label>السجل حسب الاسم</label>
-            <Select filterable remote :remote-method="getLogByName">
+            <Select filterable remote :remote-method="getLogByName" clearable>
                 <Option v-for="admin in admins" :value="admin.id" :key="admin.id">{{ admin.username }}</Option>
             </Select>
           </div>
 
           <div class="col">
             <label>السجل حسب الحالة</label>
-            <Select filterable remote :remote-method="getLogByActionCode">
+            <Select filterable remote :remote-method="getLogByActionCode" clearable>
                 <Option v-for="action in actions" :value="action.id" :key="action.id">{{ action.name }}</Option>
             </Select>
           </div>
 
           <div class="col">
             <label>السجل حسب المحافظة</label>
-            <Select filterable remote :remote-method="getLogByGover">
+            <Select filterable remote :remote-method="getLogByGover" clearable>
                 <Option v-for="gover in governorate" :value="gover.id" :key="gover.id">{{ gover.name }}</Option>
             </Select>
           </div>

@@ -4,7 +4,7 @@
       <div class="row">
           <div class="col">
             <label>اسم المزود</label>
-            <Select v-model="userSearch" filterable remote :remote-method="getProviderById">
+            <Select v-model="userSearch" filterable remote :remote-method="getProviderById" clearable>
                 <Option v-for="(data, index) in providers" :value="index" :key="index">{{ data.username }}</Option>
             </Select>
           </div>

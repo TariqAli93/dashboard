@@ -4,21 +4,21 @@
       <div class="row">
           <div class="col">
             <label>بحث في المستخدمين</label>
-            <Select v-model="userSearch" filterable remote :remote-method="getQuery">
+            <Select v-model="userSearch" filterable remote :remote-method="getQuery" clearable>
                 <Option v-for="(data, index) in users" :value="index" :key="index">{{ data.username }}</Option>
             </Select>
           </div>
 
           <div class="col">
             <label>المستخدمين حسب المنطقة</label>
-            <Select v-model="userByAddress" filterable remote :remote-method="getQuery2">
+            <Select v-model="userByAddress" filterable remote :remote-method="getQuery2" clearable>
                 <Option v-for="(gover, index) in governorate" :value="index" :key="index">{{ gover.name }}</Option>
             </Select>
           </div>
 
           <div class="col">
             <label>المستخدمين حسب التصنيف</label>
-            <Select v-model="userByCategory" filterable @on-change="getQuery3">
+            <Select v-model="userByCategory" filterable @on-change="getQuery3" clearable>
                 <Option v-for="category in categories" :value="category.id" :key="category.id">{{ category.name }}</Option>
             </Select>
           </div>

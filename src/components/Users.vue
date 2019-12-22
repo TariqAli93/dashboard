@@ -163,7 +163,7 @@ export default {
             roleId: [],
             registerUrl: '',
             userImages: '',
-            imageUrl: 'http://23.238.35.18:5300',
+            imageUrl: 'http://mehtaj.srittwo.me',
             defaultUsername: '',
             defaultMobile: '',
             defaultAddress: '',

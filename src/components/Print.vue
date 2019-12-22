@@ -102,7 +102,7 @@
                 type="drag"
                 :headers="headerUpload"
                 :on-success="onsuccess"
-                action="http://23.238.35.18:5300/api/account/uploadDocumentsImage">
+                action="http://mehtaj.srittwo.me/api/account/uploadDocumentsImage">
                 <div style="display: flex; align-items: center; justify-content: center; height: 100vh">
                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                     <p>قم برفع العقد الموقع </p>
