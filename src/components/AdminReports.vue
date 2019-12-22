@@ -27,12 +27,17 @@
       <div class="h-100 d-flex flex-column align-items-center mt-5 mb-5">
           <div v-show="showTable" class="custom-table w-100 ">
               <div class="table-responsive-xl">
+                <Spin fix v-show="spinShow" size="large">
+                    <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                    <div>جاري تحميل البيانات</div>
+                </Spin>
                 <table class="table table-borderless ">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">الادمن</th>
                             <th scope="col">الحالة</th>
+                            <th scope="col">المستخدم</th>
                             <th scope="col">التاريخ</th>
                         </tr>
                     </thead>
@@ -47,6 +52,7 @@
                                 <span v-else-if="data.actionCode === 3">تغير كلمة المرور</span>
                                 <span v-else>استعادة كلمة المرور</span>
                             </td>
+                            <td scope="row">Id: {{ data.newUserId }}</td>
                             <td scope="row">{{ formatDate(data.createdAt) }}</td>
                         </tr>  
                     </tbody>
@@ -69,6 +75,7 @@ export default {
             result: '',
             showTable: false,
             dataSize: '',
+            spinShow: false,
             actions: [
                 {
                     id: 0,
@@ -185,6 +192,7 @@ export default {
     methods: {
         getLogByName(id) {
             let token = localStorage.getItem('token');
+            this.spinShow = true;
             this.axios.get(`${baseUrl}/reports/adminProviders?Username=${id}`,
             {
                 headers: {
@@ -195,6 +203,7 @@ export default {
                 this.result = result.data;
                 this.showTable = true;
                 this.dataSize = result.data.length;
+                this.spinShow = false;
             }).catch((err) => {
                 console.error(err);
             });
@@ -202,6 +211,7 @@ export default {
         getLogByActionCode(ActionCode) {
             let token = localStorage.getItem('token');
             let action = '';
+            this.spinShow = true;
             if(ActionCode === 'اضافة') {
                 action = 0;
             } else if(ActionCode === 'حذف') {
@@ -223,14 +233,16 @@ export default {
                 this.result = result.data;
                 this.showTable = true;
                 this.dataSize = result.data.length;
+                this.spinShow = false;
             }).catch((err) => {
-                console.error(err);
+              this.spinShow = false;
             });
 
             console.log(ActionCode)
         },
         getLogByGover(Government) {
             let token = localStorage.getItem('token');
+            this.spinShow = true;
             this.axios.get(`${baseUrl}/reports/adminProviders?Government=${Government}`,
             {
                 headers: {
@@ -241,21 +253,23 @@ export default {
                 this.result = result.data;
                 this.showTable = true;
                 this.dataSize = result.data.length;
+                this.spinShow = false;
             }).catch((err) => {
-                console.error(err);
+                this.spinShow = false;
             });
         },
         getUserById(id) {
             let token = localStorage.getItem('token');
+            this.spinShow = true;
             this.axios.get(`${baseUrl}users/getUserInfo`, 
             {
                 headers: {
                     Authorization: 'bearer ' + token
                 }
             }).then((result) => {
-                console.log(result);
+                this.spinShow = false;
             }).catch((err) => {
-                console.error(err);
+                this.spinShow = false;
             });
         },
         formatDate(date) {

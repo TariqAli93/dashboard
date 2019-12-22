@@ -48,7 +48,7 @@
                     </a>
                 </router-link>
 
-                <li class="dropdown-parent">
+                <li class="dropdown-parent" v-if="getRoles() == 'SuperAdmin'">
                     <a>
                         <Icon type="ios-paper-outline" />
                         <span>التقارير</span>
@@ -247,7 +247,7 @@ export default {
                     mobileNumber: this.mobileNumber,
                     password: this.password
                 };
-                this.axios.post("http://23.238.35.18:5300/api/account/loginAdmin", loginInfo ,options)
+                this.axios.post(`${baseUrl}/account/loginAdmin`, loginInfo ,options)
                 .then((result) => {
                     // let mm = '+9647717714473';
                     this.token = result.data.jwt;
@@ -277,6 +277,7 @@ export default {
                 }).catch((err) => {
                     console.log(err);
                     this.$Loading.error();
+                    this.spinShow = false;
                     
                     setTimeout(() => {
                         this.$Message.error('تحقق من صحة المعلومات');

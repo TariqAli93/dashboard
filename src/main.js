@@ -4,7 +4,8 @@ import router from './router'
 import store from './store'
 import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
-import locale from 'view-design/dist/locale/en-US';
+import locale from "view-design/dist/locale/ar-SA";
+// import locale from 'view-design/dist/locale/en-US';
 import 'material-icons/iconfont/material-icons.css';
 import axios from 'axios'
 import VueAxios from 'vue-axios'

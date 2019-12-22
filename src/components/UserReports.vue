@@ -4,29 +4,33 @@
       <div class="row">
           <div class="col">
             <label>بحث في المستخدمين</label>
-            <Select v-model="userSearch" filterable remote :remote-method="getQuery" clearable>
+            <Select v-model="userSearch" filterable remote :remote-method="getQuery" clearable @on-clear="clearMethod()">
                 <Option v-for="(data, index) in users" :value="index" :key="index">{{ data.username }}</Option>
             </Select>
           </div>
 
           <div class="col">
             <label>المستخدمين حسب المنطقة</label>
-            <Select v-model="userByAddress" filterable remote :remote-method="getQuery2" clearable>
+            <Select v-model="userByAddress" filterable remote :remote-method="getQuery2" clearable @on-clear="clearMethod()">
                 <Option v-for="(gover, index) in governorate" :value="index" :key="index">{{ gover.name }}</Option>
             </Select>
           </div>
 
           <div class="col">
             <label>المستخدمين حسب التصنيف</label>
-            <Select v-model="userByCategory" filterable @on-change="getQuery3" clearable>
+            <Select v-model="userByCategory" filterable @on-change="getQuery3" clearable @on-clear="clearMethod()">
                 <Option v-for="category in categories" :value="category.id" :key="category.id">{{ category.name }}</Option>
             </Select>
           </div>
       </div>
 
       <div class="h-100 d-flex flex-column align-items-center mt-5 mb-5">
-          <div v-show="showTable" class="custom-table w-100 ">
+          <div class="custom-table w-100 ">
               <div class="table-responsive-xl">
+                <Spin fix v-show="spinShow" size="large">
+                    <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                    <div>جاري تحميل البيانات</div>
+                </Spin>
                 <table class="table table-borderless ">
                     <thead class="thead-dark">
                         <tr>
@@ -81,6 +85,8 @@ export default {
             showTable: false,
             users: '',
             categories: '',
+            oldData: '',
+            spinShow: false,
             governorate: [
             {
               "name":'اربيل',
@@ -165,8 +171,8 @@ export default {
             }
         }).then((result) => {
             this.users = result.data;
+            this.oldData = result.data;
         }).catch((err) => {
-            console.error(err);
         });
 
         this.getCategories();
@@ -181,16 +187,19 @@ export default {
                 Authorization: "bearer " + token
                 }
             }).then((result) => {
-            console.log(result);
             this.categories = result.data;
             }).catch((err) => {
-                console.error(err);
             });
         },
 
+        clearMethod() {
+            return this.users = this.oldData;
+        },
+
         getQuery(query) {
-            if(query !== '') {
+            if(query.length > 0) {
                 this.showTable = true;
+                this.spinShow = true;
                 let token = localStorage.getItem('token');
                 this.axios.get(`${baseUrl}/users/getUsers?Username=${query}`, 
                 {
@@ -199,17 +208,20 @@ export default {
                     }
                 }).then((result) => {
                     this.users = result.data;
+                    this.spinShow = false;
                 }).catch((err) => {
-                    console.error(err);
+                    this.spinShow = false;
                 });
             } else {
                 this.showTable = false;
+                this.users = this.oldData;
             }
         },
 
         getQuery2(query) {
-            if(query !== '') {
+            if(query) {
                 this.showTable = true;
+                this.spinShow = true;
                 let token = localStorage.getItem('token');
                 this.axios.get(`${baseUrl}/users/getUsers?Address1=${query}`, 
                 {
@@ -218,8 +230,9 @@ export default {
                     }
                 }).then((result) => {
                     this.users = result.data;
+                    this.spinShow = false;
                 }).catch((err) => {
-                    console.error(err);
+                    this.spinShow = false;
                 });
             } else {
                 this.showTable = false;
@@ -227,8 +240,9 @@ export default {
         },
 
         getQuery3(query) {
-            if(query !== '') {
+            if(query) {
                 this.showTable = true;
+                this.spinShow = true;
                 let token = localStorage.getItem('token');
                 this.axios.get(`${baseUrl}/users/getUsers?CategoryId=${query}`, 
                 {
@@ -237,10 +251,11 @@ export default {
                     }
                 }).then((result) => {
                     this.users = result.data;
-                    console.log(query)
+                    this.spinShow = false;
                 }).catch((err) => {
-                    console.error(err);
+                    this.spinShow = false;
                 });
+                console.log(`${baseUrl}/users/getUsers?CategoryId=${query}`);
             } else {
                 this.showTable = false;
             }
@@ -261,5 +276,7 @@ export default {
 </script>
 
 <style>
-
+.demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
 </style>
