@@ -7,6 +7,9 @@ import Services from '../components/Services.vue'
 import Support from '../components/Support.vue'
 import Home from '../components/Home.vue'
 import Print from '../components/Print.vue'
+import UserReports from '../components/UserReports.vue'
+import ProviderReports from '../components/ProviderReports.vue'
+import AdminReports from '../components/AdminReports.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +18,21 @@ const routes = [
     path: '/home',
     name: 'home',
     component: Home
+  },
+  {
+    path: '/userReports',
+    name: 'userReports',
+    component: UserReports
+  },
+  {
+    path: '/providerReports',
+    name: 'providerReports',
+    component: ProviderReports
+  },
+  {
+    path: '/adminReports',
+    name: 'adminReports',
+    component: AdminReports
   },
   {
     path: '/accounts',

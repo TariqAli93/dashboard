@@ -370,6 +370,7 @@ export default {
             console.error(err);
         });
       },
+      
       getFileFromInput(file) {
         this.files = file.target.files;
         var data = new FormData();
@@ -378,6 +379,7 @@ export default {
         }
         this.getFileToUpLoad(data);
       },
+
       getFileToUpLoad(file) {
         var token = localStorage.getItem('token');
         let self = this;
@@ -428,11 +430,28 @@ export default {
               Authorization: "bearer " + token
             }
         }).then((result) => {
+          let object2 = {
+            userDocumentsImages: this.filePath,
+            mobileNumber: this.mobileNo,
+          };
+          this.axios.put(`${baseUrl}/account/addUserDocuments`,
+          object2,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "bearer " + token
+            }
+          })
+          .then((res) => {
+            console.log(res)
+          }).catch((reserr) => {
+            console.error(reserr);
+          });
           this.$router.push({name: 'print', params: {object, areas}});
 
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
-          console.error(JSON.stringify(err));
+          console.error(err);
         });
       },
 

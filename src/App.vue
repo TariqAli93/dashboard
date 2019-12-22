@@ -1,6 +1,34 @@
 <template>
   <div id="main-view">
-      <div id="main-page" v-if="isLoggedIn == true">
+      <Spin size="large" fix v-show="spinShow"></Spin>
+        <Modal v-model="newPassModal" footer-hide width="600">
+            <div slot="header">
+                <h4>تغير كلمة المرور</h4>
+            </div>
+
+            <form method="post" class="add-user" @submit.prevent="resetPassword">
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="currentPassword">كلمة المرور</label>
+                            <input type="password" name="currentPassword" required id="currentPassword" class="form-control p-3" v-model="currentPassword" placeholder="كلمة المرور">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="newPassword">كلمة المرور الجديدة</label>
+                            <input type="password" name="newPassword" required id="newPassword" class="form-control p-3" v-model="newPassword" placeholder="كلمة المرور الجديدة">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block p-3">تغير كلمة المرور</button>
+            </form>
+        </Modal>
+      <div id="main-page" v-if="isLoggedIn == true && online == true">
+
           <div id="sidebar">
             <div class="logo-wrapper">
                 <img src="./assets/logo.png" />
@@ -20,12 +48,31 @@
                     </a>
                 </router-link>
 
-                <!-- <router-link to="/services" tag="li" exact-active-class="active">
+                <li class="dropdown-parent">
                     <a>
-                        <Icon type="ios-briefcase-outline" />
-                        <span>الخدمات</span>
+                        <Icon type="ios-paper-outline" />
+                        <span>التقارير</span>
                     </a>
-                </router-link> -->
+                    <div class="sidebar-dropdown">
+                        <router-link to="/userReports" tag="li">
+                            <a>
+                                <span>تقارير المستخدمين</span>
+                            </a>
+                        </router-link>
+
+                        <router-link to="/providerReports" tag="li">
+                            <a>
+                                <span>تقارير المزودين</span>
+                            </a>
+                        </router-link>
+
+                        <router-link to="/adminReports" tag="li">
+                            <a>
+                                <span>تقارير الادمن</span>
+                            </a>
+                        </router-link>
+                    </div>
+                </li>
 
                 <router-link to="/categories" v-if="getRoles() == 'SuperAdmin'" tag="li" exact-active-class="active">
                     <a>
@@ -50,7 +97,10 @@
             </ul>
 
             <div class="logout-wrapper">
-                <Button type="warning" @click="logout">تسجيل الخروج</Button>
+                <div class="btn-group btn-group-lg" role="group">
+                    <button class="btn btn-warning" @click="logout" data-toggle="tooltip" data-placement="bottom" title="تسجيل الخروج"><Icon type="ios-log-out" /></button>
+                    <button class="btn btn-info" @click="newPassModal = true" data-toggle="tooltip" data-placement="bottom" title="تغير كلمة المرور"><Icon type="ios-unlock-outline" /></button>
+                </div>
             </div>
         </div>
         <div id="main-content">
@@ -58,7 +108,7 @@
         </div>
       </div>
 
-      <div id="login-page" v-if="isLoggedIn == false">
+      <div id="login-page" v-if="isLoggedIn == false && online == true">
           <form class="login-form">
               <div class="logo">
                   <img src="./assets/logo.png" />
@@ -85,11 +135,16 @@
 
               <Button type="success" size="large" icon="ios-arrow-round-forward" long @click="login">تسجيل الدخول</Button>
           </form>
+
+          <div class="copyright">
+              <span>جميع الحقوق محفوظة لشركة <a href="#">المصادر الذكية</a></span>
+          </div>
       </div>
   </div>
 </template>
 
 <script>
+import baseUrl from './apis'
 export default {
     data() {
         return {
@@ -97,18 +152,29 @@ export default {
             mobileNumber: '',
             password: '',
             token: '',
-            errors: ''
+            errors: '',
+            spinShow: true,
+            newPassword: '',
+            currentPassword: '',
+            newPassModal: false,
+            online: navigator.onLine
         }
     },
     beforeCreate() {
         this.$Loading.start();
+        this.spinShow = true;
+    },
+    created() {
+        this.spinShow = false;
     },
     mounted() {
         if (localStorage.getItem('token') !== null) {
             this.$Message.success('تم تسجيل الدخول مسبقا');
             this.isLoggedIn = true;
             this.$router.push({name: 'home'});
-            console.log(this.getRoles());
+            setTimeout(() => {
+                this.spinShow = false;
+            }, 2000);
         }
         this.$Loading.finish();
     },
@@ -129,7 +195,42 @@ export default {
             );
             return JSON.parse(jsonPayload);
         },
+
+        resetPassword() {
+            let token = localStorage.getItem('token');
+            var parsedtoken = this.parseJwt(token);
+            let object = {
+                id: parsedtoken.id,
+                password: this.currentPassword,
+                newPassword: this.newPassword
+            };
+
+            if(this.newPassword.length < 6) {
+                this.$Message.error("يجب ان تكون كلمة المرور 6 ارقام / حروف او اكثر");
+                return false;
+            }
+            this.axios.put(`${baseUrl}/users/changePasswprd`,
+            object,
+            {
+                headers: {
+                    Authorization: "bearer " + token
+                }
+            }).then((result) => {
+                this.newPassModal = false;
+                this.currentPassword = '';
+                this.newPassword = '';
+                this.$Message.success("تم تحديث كلمة المرور بنجاح");
+                this.logout();
+            }).catch((err) => {
+                this.currentPassword = '';
+                this.newPassword = '';
+                this.$Message.error("حدث خطاء في تحديث كلمة المرور");
+                console.error(err);
+            });
+        },
+        
         login() {
+            this.spinShow = true;
             if(this.mobileNumber == '' || this.password == '') {
                 this.errors = 'البيانات غير صحيحة . يرجا ادخال البيانات';
             }else {
@@ -171,6 +272,7 @@ export default {
                     }, 2000);
                     setTimeout(() => {
                         this.$router.push({name: 'home'});
+                        this.spinShow = false;
                     }, 3000);
                 }).catch((err) => {
                     console.log(err);
@@ -184,6 +286,7 @@ export default {
         },
         logout() {
             this.$Loading.start();
+            this.spinShow = true;
             setTimeout(() => {
                 this.$router.push('/');
                 this.isLoggedIn = false;
@@ -191,6 +294,7 @@ export default {
                 localStorage.removeItem('role');
                 this.$Loading.finish();
                 this.$Message.success('تم تسجيل الخروج');
+                this.spinShow = false;
             }, 1500);
         },
 
@@ -242,6 +346,17 @@ export default {
     margin: 0 auto;
     box-sizing: border-box;
 }
+
+.copyright {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    text-align: center;
+}
+
+
 
 .ivu-notice-notice {
     direction: ltr;
@@ -362,6 +477,39 @@ ul#sidebar-list {
 
 ul#sidebar-list li {
     display: block;
+    position: relative;
+}
+
+.sidebar-dropdown {
+    position: absolute;
+    background: white;
+    padding: 10px;
+    width: 240px;
+    width: max-content;
+    right: 100%;
+    top: 10px;
+    z-index: 5000;
+    box-shadow: 0 2px 10px 0 rgba(0,0,0,0.10);
+    visibility: hidden;
+    opacity: 0;
+    border-radius: 10px;
+    transition: all ease-in-out 300ms;
+
+    li {
+        &:not(:last-child) {
+            border-bottom: 1px solid rgba(0,0,0,0.10);
+        }
+    }
+}
+
+.dropdown-parent:hover,
+.dropdown-parent:focus,
+.dropdown-parent:active {
+    .sidebar-dropdown {
+        visibility: visible;
+        opacity: 1;
+        top: 0px;
+    }
 }
 
 ul#sidebar-list li > a {

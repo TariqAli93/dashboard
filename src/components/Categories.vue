@@ -31,7 +31,7 @@
                         </td>
                         <td scope="row">{{ data.name }}</td>
                         <td scope="row">
-                            <button class="btn btn-warning ml-2" @click="modal2 = true; updateId = data.id"><Icon type="ios-create-outline" /></button>
+                            <button class="btn btn-warning ml-2" @click="modal2 = true; updateId = data.id; defaultCategoryInfo(data.id)"><Icon type="ios-create-outline" /></button>
                             <button class="btn btn-danger" @click="remove(data.id, index)"><Icon type="ios-trash-outline" /></button>
                         </td>
                     </tr>  
@@ -78,7 +78,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="file">صورة التصنيف</label>
-                        <input type="file" required name="file" id="file" class="form-control" @change="getFileFromInput">
+                        <input type="file" name="ufile" id="ufile" class="form-control" @change="getFileFromInput">
                     </div>
                 </div>
             </div>
@@ -100,6 +100,7 @@
                 description: '',
                 userId: '',
                 image: {},
+                imageUri: '',
                 filePath: '',
                 files: '',
                 categories: '',
@@ -206,6 +207,22 @@
                     console.error(JSON.stringify(err));
                     this.$Message.error('حدث خطاء في انشاء التصنيف');
                     this.$Loading.error();
+                });
+            },
+
+            defaultCategoryInfo(id) {
+                let token = localStorage.getItem('token');
+                this.axios.get(`${baseUrl}/category/getCategory?id=${id}`,
+                {
+                    headers: {
+                        Authorization: 'bearer ' + token
+                    }
+                }).then((result) => {
+                    this.name = result.data.name;
+                    this.imageUri = result.data.imageUri;
+                    console.log(result.data);
+                }).catch((err) => {
+                    console.error(err);
                 });
             },
 

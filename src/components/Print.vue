@@ -100,7 +100,7 @@
             <Upload
                 multiple
                 type="drag"
-                :headers= "headerUpload"
+                :headers="headerUpload"
                 :on-success="onsuccess"
                 action="http://23.238.35.18:5300/api/account/uploadDocumentsImage">
                 <div style="display: flex; align-items: center; justify-content: center; height: 100vh">
@@ -142,9 +142,26 @@ export default {
         }, 2500)
     },
     methods: {
-        onsuccess() {
+        onsuccess(e) {
             this.$Message.success("تم الرفع بنجاح");
             this.fmodal = false;
+            let token = localStorage.getItem('token');
+            console.log(e);
+            let object = {
+                mobileNumber: this.params.mobileNo,
+                userDocumentsImages: e
+            }
+
+            this.axios.put(`${baseUrl}/account/addUserDocuments`,object, 
+            {
+                headers: {
+                    Authorization: "bearer " + token
+                }
+            }).then((result) => {
+                this.$Message.success("تم رفع الملفات بنجاح")
+            }).catch((err) => {
+                this.$Message.error('لم يتم رفع الملف');
+            });
         },
         getJobName(id) {
             let token = localStorage.getItem('token');

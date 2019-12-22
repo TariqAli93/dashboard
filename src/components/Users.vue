@@ -41,12 +41,18 @@
                                     <b v-else>User </b>
                                 </span>
                             </td>
-                            <td scope="row">{{ data.validFrom }}</td>
-                            <td scope="row">{{ data.validTo }}</td>
+                            <td scope="row">{{ formatDate(data.validFrom) }}</td>
                             <td scope="row">
-                                <button class="btn btn-primary" @click="showImages()">الصور</button>
-                                <button class="btn btn-warning ml-2" @click="modal1 = true; updateId = data.id"><Icon type="ios-create-outline" /></button>
-                                <button class="btn btn-danger" @click="remove(data.id, index)"><Icon type="ios-trash-outline" /></button>
+                                <span v-if="isExpierd(formatDate(data.validTo))">{{ formatDate(data.validTo) }}</span>
+                                <span v-else style="color: red;">الحساب منتهي</span>
+                            </td>
+                            <td scope="row">
+                                <div class="btn-group">
+                                    <button class="btn btn-success" @click="newPassModal = true; newPassId = data.id"><Icon type="ios-lock" /></button>
+                                    <button class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages)"><Icon type="ios-images-outline" /></button>
+                                    <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button>
+                                    <button class="btn btn-danger" @click="doDeleteSuperAdmin(data.id, index);"><Icon type="ios-trash-outline" /></button>
+                                </div>
                             </td>
                         </tr>  
                     </tbody>
@@ -57,7 +63,7 @@
 
         <Modal v-model="modal1" footer-hide width="600">
             <div slot="header">
-                <h4>اضافة مستخدم</h4>
+                <h4>تحديث مستخدم</h4>
             </div>
 
             <form method="post" class="add-user" @submit.prevent="update(updateId)">
@@ -66,13 +72,6 @@
                         <div class="form-group">
                             <label for="username">اسم المستخدم</label>
                             <input type="text" name="username" id="username" class="form-control" v-model="username" placeholder="اسم المستخدم">
-                        </div>
-                    </div>
-
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="password">كلمة المرور</label>
-                            <input type="password" name="password" id="password" class="form-control" v-model="password" placeholder="كلمة المرور">
                         </div>
                     </div>
                 </div>
@@ -104,7 +103,40 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary btn-block">انشاء الحساب</button>
+                <button class="btn btn-primary btn-block">تحديث الحساب</button>
+            </form>
+        </Modal>
+
+        <Modal v-model="carouselModal" footer-hide width="800">
+            <div slot="header">
+                <h4>مستمسكات المستخدم</h4>
+            </div>
+
+            <div class="row">
+                <div class="col" v-for="img in userImages" :key="img.carousel">
+                    <div >
+                        <a :href="imageUrl + img" target="_blank"><img :src="imageUrl + img" class="img-thumbnail" style="max-height: 200px"></a>
+                    </div>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal v-model="newPassModal" footer-hide width="600">
+            <div slot="header">
+                <h4>تغير كلمة المرور</h4>
+            </div>
+
+            <form method="post" class="add-user" @submit.prevent="changePassword(newPassId)">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="newPassword">كلمة المرور الجديدة</label>
+                            <input type="password" name="newPassword" required id="newPassword" class="form-control" v-model="newPassword" placeholder="كلمة المرور الجديدة">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block">تغير كلمة المرور</button>
             </form>
         </Modal>
   </div>
@@ -112,11 +144,14 @@
 
 <script>
 import baseUrl from '../apis';
+import moment from "../../node_modules/moment";
 export default {
     data() {
         return {
             users: '',
             modal1: false,
+            carouselModal: false,
+            carousel: 0,
             updateId: '',
             search: '',
             usersFilterd: '',
@@ -125,14 +160,17 @@ export default {
             mobileNumber: '',
             address: '',
             validTo: '',
-            roleId: '',
+            roleId: [],
             registerUrl: '',
-            updateName: '',
-            updatePass: '',
-            updateMobile: '',
-            updateAddress: '',
-            updateValidTo: '',
-            isSuperAdmin: false,
+            userImages: '',
+            imageUrl: 'http://23.238.35.18:5300',
+            defaultUsername: '',
+            defaultMobile: '',
+            defaultAddress: '',
+            defaultDate: '',
+            newPassword: '',
+            newPassModal: false,
+            newPassId: '',
             governorate: [
             {
               "name":'اربيل',
@@ -213,6 +251,32 @@ export default {
         this.getAllUsers();
     },
     methods: {
+        showImages(imgs) {
+            if(imgs == "") {
+                this.$Message.error("لا يوجد صور لهذا المستخدم");
+            } else {
+                var imgArr = imgs.split(";");
+                var filtered = imgArr.filter(function (el) {
+                    return el !== "";
+                });
+                this.carouselModal = true;
+                this.userImages = filtered;
+            }
+            console.log(imgs);
+        },
+
+        formatDate(date) {
+            return moment(date).format('D/M/YYYY');
+        },
+
+        isExpierd(date) {
+            let today = moment().format("D/M/YYYY");
+            if(today === date) {
+                return false;
+            } else {
+                return true;
+            }
+        },
         getAllUsers() {
             var self = this;
             let token = localStorage.getItem('token');
@@ -244,11 +308,66 @@ export default {
                 }
             }
         },
+
+        defaultUserAccount(mobile) {
+            let token = localStorage.getItem('token');
+            this.axios.get(`${baseUrl}/users/getUserByMobile?mobileNumber=${mobile}`,
+            {
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            }).then((result) => {
+                this.username = result.data.username;
+                this.mobileNumber = result.data.userInfo.mobileNo;
+                this.address = result.data.userInfo.address1;
+                this.validTo = result.data.userInfo.validTo;
+                var role = result.data.userRole;
+                var roleId = [];
+                for(let i=0; i < role.length; i++) {
+                    roleId.push(role[i].roleId);
+                }
+                if(roleId.includes(4)) {
+                    this.$Message.error('لا يمكن تعديل هذا المستخدم');
+                    this.modal1 = false;
+                    return false;
+                } else {
+                    return true;
+                }
+            }).catch((err) => {
+                console.error(err);
+            });
+        },
+
+        doDeleteSuperAdmin(id, index) {
+            let token = localStorage.getItem('token');
+            let self = this;
+            let roleId = [];
+            self.axios.get(`${baseUrl}/users/getUserInfo?userId=${id}`,
+            {
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            }).then((result) => {
+                for(let i =0; i< result.data.userRole.length; i++) {
+                    roleId.push(result.data.userRole[i].roleId);
+                }
+                if(roleId.includes(4) == true) {
+                    self.$Message.error("لا يمكن حذف السوبر ادمن");
+                    return false;
+                } else {
+                    self.remove(id, index);
+                    return true;
+                }
+            }).catch((err) => {
+                console.error(err);
+            });
+
+            console.log(roleId);
+        },
         update(id) {
             let object = {
                 Id: id,
                 Username: this.username,
-                Password: this.password,
                 ValidTo: this.validTo,
                 MobileNo: this.mobileNumber,
                 Address1: this.address
@@ -262,19 +381,10 @@ export default {
                     Authorization: "bearer " + token
                 }
             }).then((result) => {
-                console.log(result);
+                this.$Message.success("تم التحديث بنجاح");
             }).catch((err) => {
-                console.error(err);
+                this.$Message.error("حدث خطاء في تحديث البيانات");
             });
-            this.$Message.success('UpDate Item With Id: ' + id);
-        },
-
-        findRoleId(nameKey, myArray){
-            for (var i=0; i < myArray.length; i++) {
-                if (myArray[i] === nameKey) {
-                    return myArray[i];
-                }
-            }
         },
 
         remove(id, index) {
@@ -283,6 +393,7 @@ export default {
             if(confirmDelete) {
                 let token = localStorage.getItem('token');
                 this.$Loading.start();
+                console.log(this.doDeleteSuperAdmin(id) == true);
                 self.axios.delete(`${baseUrl}/users/deleteUser?id=${id}`, 
                 {
                     headers: {
@@ -306,6 +417,28 @@ export default {
 
         doDelete() {
             this.confirmDelete = true;
+        },
+
+        changePassword(id) {
+            let token = localStorage.getItem('token');
+            let self = this;
+            let object = {
+                id: id,
+                password: this.newPassword
+            };
+
+            self.axios.put(`${baseUrl}/users/resetPasswordWeb`,
+            object,
+            {
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            }).then((result) => {
+                this.$Message.success("تم تغير كلمة المرور");
+                this.newPassword = '';
+            }).catch((err) => {
+                this.$Message.error('حدث خطاء في تغير كلمة المرور');
+            });
         }
     }
 }

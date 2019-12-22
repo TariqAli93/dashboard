@@ -10,10 +10,10 @@
         <h1>رسائل الدعم الفني</h1>
         <div class="mt-3 mb-3"></div>
         <div class="row">
-            <div class="col-sm-12 col-md-6 col-lg-3 col-xl-4 mb-3" v-for="(message, index) in messages" :key="message.id">
+            <div class="col-sm-12 col-md-6 col-lg-3 col-xl-4 mb-3" v-for="(message) in messages" :key="message.id">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">الرسالة رقم {{ index }}</h5>
+                        <h5 class="card-title border-bottom pb-3">{{ message.user.username }}</h5>
                         <p class="card-text">
                             {{ message.message.slice(0, 10) + '...' }}
                         </p>
