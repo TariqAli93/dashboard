@@ -233,6 +233,7 @@ export default {
             this.spinShow = true;
             if(this.mobileNumber == '' || this.password == '') {
                 this.errors = 'البيانات غير صحيحة . يرجا ادخال البيانات';
+                this.spinShow = false;
             }else {
                 this.errors = '';
                 this.$Loading.start();
@@ -253,6 +254,7 @@ export default {
                     this.token = result.data.jwt;
                     localStorage.setItem('token', this.token);
                     this.$Loading.finish();
+                    this.spinShow = false;
 
                     setTimeout(() => {
                         this.$Message.success('تم تسجيل الدخول بنجاح');
