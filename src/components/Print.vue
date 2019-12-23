@@ -1,6 +1,10 @@
 <template>
   <div id="print">
         <div class="print-main">
+            <Spin fix v-show="spinShow" size="large">
+                <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                <div>جاري تحميل البيانات</div>
+            </Spin>
             <header>
                 <div>
                     <img src="../assets/logo.png">
@@ -123,6 +127,7 @@ export default {
             token: '',
             headerUpload: '',
             fmodal: false,
+            spinShow: false,
         }
     },
     mounted() {
@@ -134,12 +139,17 @@ export default {
         this.params2 = this.$route.params.areas;
         console.log(this.$route.params);
         this.getJobName(this.params.categoryId);
+        this.spinShow = true;
+        setTimeout(() => {
+            this.spinShow = false;
+        },3500);
         setTimeout(() => {
             window.print();
-        }, 2000);
+        }, 4000);
         setTimeout(() => {
             this.fmodal = true;
-        }, 2500)
+            this.spinShow = false;
+        }, 4500);
     },
     methods: {
         onsuccess(e) {
@@ -186,6 +196,9 @@ export default {
     .printBtn {
         display: none !important;
     }
+}
+.demo-spin-icon-load{
+    animation: ani-demo-spin 1s linear infinite;
 }
 
 div#main-content  {
