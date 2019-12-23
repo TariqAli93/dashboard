@@ -7,6 +7,10 @@
         <li v-if="roles == 'SuperAdmin'"><a @click="modal2 = true">Admin</a></li>
         <li v-if="roles == 'Admin' || roles == 'SuperAdmin'"><a @click="modal1 = true">provider</a></li>
       </ul>
+      <Spin fix v-show="spinShow" size="large">
+          <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+          <div>جاري تحميل البيانات</div>
+      </Spin>
 
       <Modal v-model="modal1" footer-hide width="900" :closable="closeableModal" :mask-closable="closeableModal">
           <div class="modal-content">
@@ -256,6 +260,7 @@ export default {
           modal1: false,
           modal2: false,
           modal3: false,
+          spinShow: false,
           closeableModal: true,
           files: '',
           filePath: '',
@@ -364,10 +369,9 @@ export default {
               Authorization: "bearer " + token
             }
         }).then((result) => {
-          console.log(result);
           this.categories = result.data;
         }).catch((err) => {
-            console.error(err);
+          this.$Message.error('حدث خطاء في جلب التصنيفات');
         });
       },
       
@@ -383,6 +387,7 @@ export default {
       getFileToUpLoad(file) {
         var token = localStorage.getItem('token');
         let self = this;
+        this.spinShow = true;
         self.axios.post(`${baseUrl}/account/uploadDocumentsImage`, 
         file, 
         {
@@ -395,8 +400,10 @@ export default {
           console.log(result);
           this.filePath = result.data;
           this.$Message.success('تم رفع الملف بنجاح');
+          this.spinShow = false;
         }).catch((err) => {
-          console.error(JSON.stringify(err));
+          this.$Message.error('حدث خطاء في اضافة البيانات');
+          this.spinShow = false;
         });
       },
       submitForm() {
@@ -434,6 +441,7 @@ export default {
             userDocumentsImages: this.filePath,
             mobileNumber: this.mobileNo,
           };
+          this.spinShow = true;
           this.axios.put(`${baseUrl}/account/addUserDocuments`,
           object2,
           {
@@ -443,15 +451,15 @@ export default {
             }
           })
           .then((res) => {
-            console.log(res)
+            this.spinShow = false;
           }).catch((reserr) => {
-            console.error(reserr);
+            this.spinShow = false;
           });
           this.$router.push({name: 'print', params: {object, areas}});
-
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
-          console.error(err);
+          this.spinShow = false;
+          this.$Message.error("حدث خطاء في اضافة البيانات");
         });
       },
 
@@ -467,7 +475,7 @@ export default {
           address1: this.address,
           userTypeId: 1
         }
-
+        this.spinShow = true;
         this.axios.post(`${baseUrl}/account/registerAdmin`, 
         object, 
         {
@@ -476,12 +484,12 @@ export default {
               Authorization: "bearer " + token
             }
         }).then((result) => {
-          console.log(result);
+          this.spinShow = false;
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
-          console.error(JSON.stringify(err));
+          this.$Message.error("حدث خطاء في اضافة البيانات");
+          this.spinShow = false;
         });
-        console.log(object);
       },
 
       submitForm3() {
@@ -496,7 +504,7 @@ export default {
           address1: this.address,
           userTypeId: 4
         }
-
+        this.spinShow = true;
         this.axios.post(`${baseUrl}/account/registerAdmin`, 
         object, 
         {
@@ -505,12 +513,12 @@ export default {
               Authorization: "bearer " + token
             }
         }).then((result) => {
-          console.log(result);
+          this.spinShow = false;
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
-          console.error(JSON.stringify(err));
+          this.spinShow = false;
+          this.$Message.error("حدث خطاء في اضافة البيانات");
         });
-        console.log(object);
       },
       getDateNow() {
         var today = new Date();

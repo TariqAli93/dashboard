@@ -57,7 +57,7 @@
                             <div class="section">
                                 <span>المحلة</span>
                                 <span class="parmas">{{ params2.mahala }}</span>
-                            </div>
+                            </div> 
 
                             <div class="section">
                                 <span>رقم الدار</span>
@@ -100,18 +100,13 @@
             </div>
         </div>    
 
-        <Modal v-model="fmodal" :closable="false" :mask-closable="false" footer-hide fullscreen title="رفع العقد">
-            <Upload
-                multiple
-                type="drag"
-                :headers="headerUpload"
-                :on-success="onsuccess"
-                action="http://mehtaj.srittwo.me/api/account/uploadDocumentsImage">
-                <div style="display: flex; align-items: center; justify-content: center; height: 100vh">
-                    <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
-                    <p>قم برفع العقد الموقع </p>
+        <Modal v-model="fmodal" :closable="false" :mask-closable="false" footer-hide title="رفع العقد">
+            <form>
+                <div class="form-group">
+                    <label for="fileToUp">ارفع العقد الموقع</label>
+                    <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
                 </div>
-            </Upload>
+            </form>
         </Modal>
     </div>
 </template>
@@ -125,7 +120,7 @@ export default {
             params2: '',
             job: '',
             token: '',
-            headerUpload: '',
+            headerUpload: {},
             fmodal: false,
             spinShow: false,
         }
@@ -133,7 +128,8 @@ export default {
     mounted() {
         this.token = localStorage.getItem('token');
         this.headerUpload = {
-            Authorization: 'bearer ' + this.token
+            Authorization: 'bearer ' + this.token,
+            "Access-Control-Allow-Origin": "*"
         };
         this.params = this.$route.params.object;
         this.params2 = this.$route.params.areas;
@@ -152,25 +148,62 @@ export default {
         }, 4500);
     },
     methods: {
-        onsuccess(e) {
-            this.$Message.success("تم الرفع بنجاح");
-            this.fmodal = false;
-            let token = localStorage.getItem('token');
-            console.log(e);
-            let object = {
-                mobileNumber: this.params.mobileNo,
-                userDocumentsImages: e
+        getFileFromInput(file) {
+            this.files = file.target.files;
+            var data = new FormData();
+            for(let i =0; i< this.files.length; i++) {
+                data.append('file', this.files[i])
             }
+            this.getFileToUpLoad(data);
+        },
 
-            this.axios.put(`${baseUrl}/account/addUserDocuments`,object, 
+        getFileToUpLoad(file) {
+            var token = localStorage.getItem('token');
+            let self = this;
+            this.spinShow = true;
+            self.axios.post(`${baseUrl}/account/uploadDocumentsImage`, 
+            file, 
             {
                 headers: {
+                    "Content-Type": "multipart/form-data",
                     Authorization: "bearer " + token
                 }
-            }).then((result) => {
-                this.$Message.success("تم رفع الملفات بنجاح")
+            })
+            .then((result) => {
+                this.filePath = result.data;
+                this.$Message.success('تم رفع الملف بنجاح');
+                this.spinShow = false;
+                this.fmodal = false;
+                this.updateDocs(this.filePath);
             }).catch((err) => {
-                this.$Message.error('لم يتم رفع الملف');
+                this.$Message.error('حدث خطاء في اضافة البيانات');
+                this.spinShow = false;
+                this.fmodal = false;
+            });
+        },
+
+        updateDocs(path) {
+            var token = localStorage.getItem('token');
+            let self = this;
+            console.log(path)
+            console.log(this.params.mobileNo)
+            self.axios.put(`${baseUrl}/account/addUserDocuments`,
+            {
+                mobileNumber: self.params.mobileNo,
+                userDocumentsImages: path
+            },
+            {
+                headers: {
+                    Authorization: 'bearer ' + token,
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            }).then((result) => {
+                this.spinShow = false;
+                this.fmodal = false;
+            }).catch((err) => {
+                this.spinShow = false;
+                this.fmodal = false;
             });
         },
         getJobName(id) {

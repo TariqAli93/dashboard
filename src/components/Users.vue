@@ -356,7 +356,6 @@ export default {
                     return false;
                 } else {
                     self.remove(id, index);
-                    return true;
                 }
             }).catch((err) => {
                 console.error(err);
@@ -393,7 +392,6 @@ export default {
             if(confirmDelete) {
                 let token = localStorage.getItem('token');
                 this.$Loading.start();
-                console.log(this.doDeleteSuperAdmin(id) == true);
                 self.axios.delete(`${baseUrl}/users/deleteUser?id=${id}`, 
                 {
                     headers: {
