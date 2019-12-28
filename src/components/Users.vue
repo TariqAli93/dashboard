@@ -25,16 +25,17 @@
                             <th scope="col">تاريخ الانشاء</th>
                             <th scope="col">تاريخ الانتهاء</th>
                             <th scope="col">تعديل / حذف</th>
+                            <th scope="col">تفعيل / تعطيل</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr id="userRole" v-for="(data, index) of users" :key="data.name">
+                        <tr id="userRole" v-for="(data, index) of users" :key="data.name" v-bind:class="[data.isActive == 0 ? 'line-cross' : '']">
                             <td scope="row">{{ data.id }}</td>
                             <td scope="row">{{ data.username }}</td>
                             <td scope="row">{{ data.userInfo.mobileNo }}</td>
                             <td scope="row">{{ data.userInfo.address1 }}</td>
                             <td scope="row">
-                                <span v-for="role in data.userRole" :key="role.roleId">
+                                <span v-for="role in data.userRole" :key="role.id">
                                     <b v-if="role.roleId == 1">Admin </b>
                                     <b v-else-if="role.roleId == 2">Provider </b>
                                     <b v-else-if="role.roleId == 4">SuperAdmin </b>
@@ -49,10 +50,16 @@
                             <td scope="row">
                                 <div class="btn-group">
                                     <button class="btn btn-success" @click="newPassModal = true; newPassId = data.id"><Icon type="ios-lock" /></button>
-                                    <button class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages)"><Icon type="ios-images-outline" /></button>
-                                    <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button>
+                                    <button v-show="data.userInfo.userDocumentsImages" class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages)"><Icon type="ios-images-outline" /></button>
+                                    <!-- <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button> -->
                                     <button class="btn btn-danger" @click="doDeleteSuperAdmin(data.id, index);"><Icon type="ios-trash-outline" /></button>
                                 </div>
+                            </td>
+                            <td scope="row">
+                                <i-switch :before-change="confirmChange" @on-change="activeUser(data.id)" :value="data.isActive == 1 ? true : false">
+                                    <Icon type="md-checkmark" slot="open"></Icon>
+                                    <Icon type="md-close" slot="close"></Icon>
+                                </i-switch>
                             </td>
                         </tr>  
                     </tbody>
@@ -145,6 +152,7 @@
 <script>
 import baseUrl from '../apis';
 import moment from "../../node_modules/moment";
+import imagesFolder from '../imagePath';
 export default {
     data() {
         return {
@@ -163,7 +171,7 @@ export default {
             roleId: [],
             registerUrl: '',
             userImages: '',
-            imageUrl: 'http://mehtaj.srittwo.me',
+            imageUrl: imagesFolder,
             defaultUsername: '',
             defaultMobile: '',
             defaultAddress: '',
@@ -171,6 +179,7 @@ export default {
             newPassword: '',
             newPassModal: false,
             newPassId: '',
+            isActive: true,
             governorate: [
             {
               "name":'اربيل',
@@ -251,6 +260,46 @@ export default {
         this.getAllUsers();
     },
     methods: {
+        activeUser(id) {
+            let self = this;
+            let token = localStorage.getItem('token');
+            let active = '';
+
+            self.axios.get(`${baseUrl}/users/getUserInfo?userId=${id}`,
+            {
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            }).then((result) => {
+                active = result.data.isActive;
+                self.axios.put(`${baseUrl}/users/userValidty`,{
+                    id: id,
+                    isActive: active == 1 ? 0 : 1
+                },
+                {
+                    headers: {
+                        Authorization: 'bearer ' + token
+                    }
+                }).then((d) => {
+                    console.log(d);
+                }).catch((dr) => {
+                    console.error(dr);
+                });
+            }).catch((err) => {
+                console.error(err);
+            });
+        },
+        confirmChange() {
+            return new Promise((resolve) => {
+                this.$Modal.confirm({
+                    title: 'تحذير',
+                    content: 'هل انت واثق من تعديل المستخدم',
+                    onOk: () => {
+                        resolve();
+                    }
+                });
+            });
+        },
         showImages(imgs) {
             if(imgs == "") {
                 this.$Message.error("لا يوجد صور لهذا المستخدم");
@@ -262,7 +311,6 @@ export default {
                 this.carouselModal = true;
                 this.userImages = filtered;
             }
-            console.log(imgs);
         },
 
         formatDate(date) {
@@ -289,7 +337,6 @@ export default {
                 this.users = result.data;
                 let leng = result.data.length;
                 this.usersFilterd = result.data;
-                console.log(result.data);
             }).catch((err) => {
                 console.error(err);
             });

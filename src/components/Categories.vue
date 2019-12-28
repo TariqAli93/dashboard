@@ -90,6 +90,7 @@
 
 <script>
     import baseUrl from '../apis';
+    import imagesFolder from '../imagePath';
     export default {
         data () {
             return {
@@ -112,7 +113,7 @@
             this.aid();
             this.getCategories();
             this.userId = this.adminId;
-            this.imageFolder = 'http://mehtaj.srittwo.me';
+            this.imageFolder = imagesFolder;
         },
         methods: {
             getCategories() {

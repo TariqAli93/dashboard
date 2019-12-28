@@ -15,7 +15,7 @@
       <Modal v-model="modal1" footer-hide width="900" :closable="closeableModal" :mask-closable="closeableModal">
           <div class="modal-content">
             <div>
-              <form class="provider-form" method="post" @submit.prevent="submitForm">
+              <form class="provider-form" method="post" @submit.prevent="createProvider">
                 <div class="row">
                   <div class="col">
                     <div class="form-group">
@@ -131,7 +131,7 @@
       <Modal v-model="modal2" footer-hide width="900" :closable="closeableModal" :mask-closable="closeableModal">
           <div class="modal-content">
             <div>
-              <form class="provider-form" method="post" @submit.prevent="submitForm2">
+              <form class="provider-form" method="post" @submit.prevent="createAdmin">
                 <div class="row">
                   <div class="col">
                     <div class="form-group">
@@ -191,7 +191,7 @@
       <Modal v-model="modal3" footer-hide width="900" :closable="closeableModal" :mask-closable="closeableModal">
           <div class="modal-content">
             <div>
-              <form class="provider-form" method="post" @submit.prevent="submitForm3">
+              <form class="provider-form" method="post" @submit.prevent="craeteSuperAdmin">
                 <div class="row">
                   <div class="col">
                     <div class="form-group">
@@ -209,12 +209,12 @@
                 </div>
 
                 <div class="row">
-                  <div class="col">
+                  <!-- <div class="col">
                     <div class="form-group">
                       <label for="fileToUp">مستمسكات الزبون</label>
                       <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
                     </div>
-                  </div>
+                  </div> -->
                   
                   <div class="col">
                     <div class="form-group">
@@ -406,9 +406,8 @@ export default {
           this.spinShow = false;
         });
       },
-      submitForm() {
+      createProvider() {
         var token = localStorage.getItem('token');
-        // var validNumber = this.mobileNo.split("");
         let object = {
           username: this.username,
           password: this.password,
@@ -463,7 +462,7 @@ export default {
         });
       },
 
-      submitForm2() {
+      createAdmin() {
         var token = localStorage.getItem('token');
         let object = {
           username: this.username,
@@ -475,9 +474,10 @@ export default {
           address1: this.address,
           userTypeId: 1
         }
+        console.log(this.filePath);
         this.spinShow = true;
         this.axios.post(`${baseUrl}/account/registerAdmin`, 
-        object, 
+        object,
         {
             headers: {
               "Content-Type": "application/json",
@@ -485,14 +485,33 @@ export default {
             }
         }).then((result) => {
           this.spinShow = false;
+          let object2 = {
+            userDocumentsImages: this.filePath,
+            mobileNumber: this.mobileNo,
+          };
+          this.spinShow = true;
+          this.axios.put(`${baseUrl}/account/addUserDocuments`,
+          object2,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "bearer " + token
+            }
+          })
+          .then((res) => {
+            this.spinShow = false;
+          }).catch((reserr) => {
+            this.spinShow = false;
+          });
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
           this.$Message.error("حدث خطاء في اضافة البيانات");
           this.spinShow = false;
+          console.error(JSON.stringify(err));
         });
       },
 
-      submitForm3() {
+      craeteSuperAdmin() {
         var token = localStorage.getItem('token');
         let object = {
           username: this.username,
