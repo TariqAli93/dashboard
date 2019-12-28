@@ -37,14 +37,14 @@
                             <td scope="row">
                                 <span v-for="role in data.userRole" :key="role.id">
                                     <b v-if="role.roleId == 1">Admin </b>
-                                    <b v-else-if="role.roleId == 2">Provider </b>
+                                    <b v-else-if="role.roleId == 2"> Provider </b>
                                     <b v-else-if="role.roleId == 4">SuperAdmin </b>
                                     <b v-else>User </b>
                                 </span>
                             </td>
                             <td scope="row">{{ formatDate(data.validFrom) }}</td>
                             <td scope="row">
-                                <span v-if="isExpierd(formatDate(data.validTo))">{{ formatDate(data.validTo) }}</span>
+                                <span v-if="isExpierd(formatDate(data.validTo))"> {{ formatDate(data.validTo) }}</span>
                                 <span v-else style="color: red;">الحساب منتهي</span>
                             </td>
                             <td scope="row">
@@ -258,6 +258,7 @@ export default {
     },
     mounted() {
         this.getAllUsers();
+        this.getUserByRoleId(2);
     },
     methods: {
         activeUser(id) {
@@ -319,7 +320,7 @@ export default {
 
         isExpierd(date) {
             let today = moment().format("D/M/YYYY");
-            if(today === date) {
+            if(today >= date) {
                 return false;
             } else {
                 return true;
