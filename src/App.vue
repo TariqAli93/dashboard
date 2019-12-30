@@ -41,7 +41,7 @@
                     </a>
                 </router-link>
 
-                <router-link to="/accounts" tag="li" exact-active-class="active">
+                <router-link to="/accounts" v-if="getRoles() == 'SuperAdmin' || getRoles() == 'Admin' || getRoles() == 'AdminAdd'" tag="li" exact-active-class="active">
                     <a>
                         <Icon type="ios-person-add-outline" />
                         <span>اضافة حساب</span>
@@ -88,7 +88,7 @@
                     </a>
                 </router-link>
 
-                <router-link to="/supports" v-if="getRoles() == 'SuperAdmin'" tag="li" exact-active-class="active">
+                <router-link to="/supports" v-if="getRoles() == 'SuperAdmin' || getRoles() == 'ReportSupport'" tag="li" exact-active-class="active">
                     <a>
                         <Icon type="ios-help-buoy-outline" />
                         <span>الدعم الفني</span>
@@ -169,7 +169,11 @@ export default {
         this.spinShow = false;
     },
     mounted() {
-        if (localStorage.getItem('token') !== null) {
+        if (localStorage.getItem('token') !== null || 
+        localStorage.getItem('role') == 'SuperAdmin' || 
+        localStorage.getItem('role') == 'Admin' || 
+        localStorage.getItem('role') == 'ReportSupport' || 
+        localStorage.getItem('role') == 'AdminAdd') {
             this.$Message.success('تم تسجيل الدخول مسبقا');
             this.isLoggedIn = true;
             this.$router.push({name: 'home'});
@@ -232,6 +236,7 @@ export default {
         
         login() {
             this.spinShow = true;
+            let roles;
             if(this.mobileNumber == '' || this.password == '') {
                 this.errors = 'البيانات غير صحيحة . يرجا ادخال البيانات';
                 this.spinShow = false;
@@ -256,27 +261,37 @@ export default {
                     localStorage.setItem('token', this.token);
                     this.$Loading.finish();
                     this.spinShow = false;
+                    roles = this.parseJwt(this.token).role;
 
-                    setTimeout(() => {
-                        this.$Message.success('تم تسجيل الدخول بنجاح');
-                    },1500);
+                    if(roles.includes('SuperAdmin') || roles.includes('Admin') || roles.includes('AdminAdd') || roles.includes('ReportSupport')) {
+                        setTimeout(() => {
+                            this.$Message.success('تم تسجيل الدخول بنجاح');
+                        },1500);
 
-                    setTimeout(() => {
-                        if(this.getRoles() == 'SuperAdmin') {
-                            localStorage.setItem('role', 'SuperAdmin');
-                        } else if(this.getRoles() == 'Admin') {
-                            localStorage.setItem('role', 'Admin');
-                        } else if(this.getRoles() == 'Provider') {
-                            localStorage.setItem('role', 'Provider');
-                        } else {
-                            localStorage.setItem('role', 'User');
-                        }
-                        this.isLoggedIn = true;
-                    }, 2000);
-                    setTimeout(() => {
-                        this.$router.push({name: 'home'});
-                        this.spinShow = false;
-                    }, 3000);
+                        setTimeout(() => {
+                            if(this.getRoles() == 'SuperAdmin') {
+                                localStorage.setItem('role', 'SuperAdmin');
+                            } else if(this.getRoles() == 'Admin') {
+                                localStorage.setItem('role', 'Admin');
+                            } else if(this.getRoles() == 'Provider') {
+                                localStorage.setItem('role', 'Provider');
+                            } else if(this.getRoles() == 'AdminAdd') {
+                                localStorage.setItem('role', 'AdminAdd');
+                            } else if(this.getRoles() == 'ReportSupport') {
+                                localStorage.setItem('role', 'ReportSupport');
+                            } else {
+                                localStorage.setItem('role', 'User');
+                            }
+                            this.isLoggedIn = true;
+                        }, 2000);
+                        setTimeout(() => {
+                            this.$router.push({name: 'home'});
+                            this.spinShow = false;
+                        }, 3000);
+                    } else {
+                        this.logout();
+                        this.$Message.error("لا تمتلك الصلاحيات المناسبة لتسجيل الدخول")
+                    }
                 }).catch((err) => {
                     console.log(err);
                     this.$Loading.error();
@@ -314,6 +329,10 @@ export default {
                     return 'Admin';
                 } else if (rols.includes('Provider')) {
                     return 'Provider';
+                } else if (rols.includes('AdminAdd')) {
+                    return 'AdminAdd';
+                } else if (rols.includes('ReportSupport')) {
+                    return 'ReportSupport';
                 } else {
                     return 'User';
                 }

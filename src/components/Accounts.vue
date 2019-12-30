@@ -4,7 +4,7 @@
       <p>قم بأختيار نوع الحساب</p>
       <ul class="account-type-list">
         <li v-if="roles == 'SuperAdmin'"><a @click="modal3 = true">Super Admin</a></li>
-        <li v-if="roles == 'SuperAdmin'"><a @click="modal2 = true">Admin</a></li>
+        <li v-if="roles == 'SuperAdmin' || roles == 'AdminAdd'"><a @click="modal2 = true">Admin</a></li>
         <li v-if="roles == 'Admin' || roles == 'SuperAdmin'"><a @click="modal1 = true">provider</a></li>
       </ul>
       <Spin fix v-show="spinShow" size="large">

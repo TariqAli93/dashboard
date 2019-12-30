@@ -40,6 +40,8 @@
                                     <b v-if="role.roleId == 1">Admin </b>
                                     <b v-else-if="role.roleId == 2"> Provider </b>
                                     <b v-else-if="role.roleId == 4">SuperAdmin </b>
+                                    <b v-else-if="role.roleId == 5">AddAdmin </b>
+                                    <b v-else-if="role.roleId == 6">Support </b>
                                     <b v-else>User </b>
                                 </span>
                             </td>
@@ -55,10 +57,9 @@
                             <td scope="row">
                                 <div class="btn-group">
                                     <button class="btn btn-success" @click="newPassModal = true; newPassId = data.id"><Icon type="ios-lock" /></button>
-                                    <button class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages)"><Icon type="ios-images-outline" /></button>
+                                    <button class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages); forUpdateMobile = data.userInfo.mobileNo"><Icon type="ios-images-outline" /></button>
                                     <button class="btn btn-info" @click="privilegeModal = true; privilegRoles = data.userRole; privilegId = data.id; getRoleById(privilegRoles)"><Icon type="ios-list-box-outline" /></button>
-                                    <!-- <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button> -->
-                                    <!-- <button class="btn btn-warning" @click=""><Icon type="ios-cog-outline" /></button> -->
+                                    <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button>
                                     <button class="btn btn-danger" @click="doDeleteSuperAdmin(data.id, index);"><Icon type="ios-trash-outline" /></button>
                                 </div>
                             </td>
@@ -84,7 +85,25 @@
                     <div class="col">
                         <div class="form-group">
                             <label for="username">اسم المستخدم</label>
-                            <input type="text" name="username" id="username" class="form-control" v-model="username" placeholder="اسم المستخدم">
+                            <input type="text" disabled name="username" id="username" class="form-control" v-model="username" placeholder="اسم المستخدم">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="address">العنوان</label>
+                            <select name="address" required id="address" class="form-control" v-model="address">
+                                <option v-for="gover in governorate" :key="gover.id" :value="gover.name">{{ gover.name }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="address2">المنطقة</label>
+                            <input type="text" name="address2" id="address2" class="form-control" v-model="address2">
                         </div>
                     </div>
                 </div>
@@ -93,25 +112,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label for="mobileNumber">رقم الهاتف</label>
-                            <input type="text" name="mobileNumber" id="mobileNumber" class="form-control" v-model="mobileNumber" placeholder="رقم الهاتف">
-                        </div>
-                    </div>
-
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="address">العنوان</label>
-                            <select name="address" id="address" class="form-control" v-model="address">
-                                <option v-for="gover in governorate" :key="gover.id" :value="gover.name">{{ gover.name }}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="validTo">تاريخ الانتهاء</label>
-                            <input type="date" name="validTo" id="validTo" class="form-control" v-model="validTo">
+                            <input type="text" required name="mobileNumber" id="mobileNumber" class="form-control" v-model="mobileNumber" placeholder="رقم الهاتف">
                         </div>
                     </div>
                 </div>
@@ -153,7 +154,7 @@
             </form>
         </Modal>
 
-        <Modal v-model="privilegeModal" footer-hide width="600" @on-cancel="isAdminCheckd = false; isProviderCheckd = false; isUserCheckd = false; isSuperAdminCheckd = false">
+        <Modal v-model="privilegeModal" footer-hide width="600" @on-cancel="isAdminCheckd = false; isProviderCheckd = false; isSuperAdminCheckd = false; isAdminAddCheckd = false; isSupportChecked = false;">
             <div slot="header">
                 <h4>تغير الصلاحيات</h4>
             </div>
@@ -170,14 +171,20 @@
                 </div>
 
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" :checked="isUserCheckd" type="checkbox" id="userCheck" :value="3">
-                    <label class="form-check-label" for="userCheck">user</label>
-                </div>
-
-                <div class="form-check form-check-inline">
                     <input class="form-check-input" :checked="isSuperAdminCheckd" type="checkbox" id="SuperAdminCheck" :value="4">
                     <label class="form-check-label" for="SuperAdminCheck">SuperAdmin</label>
                 </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" :checked="isAdminAddCheckd" type="checkbox" id="isAdminAddCheckd" :value="5">
+                    <label class="form-check-label" for="isAdminAddCheckd">AdminAdd</label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" :checked="isSupportChecked" type="checkbox" id="isSupportChecked" :value="6">
+                    <label class="form-check-label" for="SuperAdminCheck">Support</label>
+                </div>
+
 
                 <button class="btn btn-block btn-primary">تعديل</button>
             </form>
@@ -209,6 +216,15 @@
             </form>
         </Modal>
 
+        <Modal v-model="updateUserImagesModal" :closable="false" :mask-closable="false" footer-hide title="رفع المستمساكت">
+            <form>
+                <div class="form-group">
+                    <label for="fileToUp">ارفع المستمساكت</label>
+                    <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
+                </div>
+            </form>
+        </Modal>
+
         <Spin v-show="isLoading" fix>
             <div class="loader">
                 <svg class="circular" viewBox="25 25 50 50">
@@ -228,6 +244,9 @@ export default {
         return {
             isLoading: false,
             users: '',
+            updateUserImagesModal: false,
+            forUpdateMobile: '',
+            forUpdateMobile: '',
             modal1: false,
             carouselModal: false,
             carousel: 0,
@@ -238,6 +257,7 @@ export default {
             password: '',
             mobileNumber: '',
             address: '',
+            address2: '',
             validTo: '',
             roleId: [],
             registerUrl: '',
@@ -254,9 +274,10 @@ export default {
             privilegeModal: false,
             privilegId: '',
             privilegRoles: '',
-            isUserCheckd: false,
             isProviderCheckd: false,
             isAdminCheckd: false,
+            isAdminAddCheckd: false,
+            isSupportChecked: false,
             isSuperAdminCheckd: false,
             userCheckBox: '',
             providerCheckBox: '',
@@ -268,6 +289,8 @@ export default {
             validFromChangeDate: this.today(),
             validToChangeDate: '',
             validToDis: '',
+            files: '',
+            filePath: '',
             governorate: [
             {
               "name":'اربيل',
@@ -355,7 +378,6 @@ export default {
             let isActive;
             let validTo = moment(this.validToChangeDate).format('YYYY-M-D');
             let validFrom = this.today();
-            // $('#validToChangeDate').valueAsDate = this.validTo;
             document.getElementById("validToChangeDate").value = "2014-02-09";
             this.validToDis = validTo;
 
@@ -414,6 +436,7 @@ export default {
         showImages(imgs) {
             if(imgs == "") {
                 this.$Message.error("لا يوجد صور لهذا المستخدم");
+                this.updateUserImagesModal = true;
             } else {
                 var imgArr = imgs.split(";");
                 var filtered = imgArr.filter(function (el) {
@@ -423,7 +446,61 @@ export default {
                 this.userImages = filtered;
             }
         },
+        getFileFromInput(file) {
+            this.files = file.target.files;
+            var data = new FormData();
+            for(let i =0; i< this.files.length; i++) {
+                data.append('file', this.files[i])
+            }
+            this.getFileToUpLoad(data);
+        },
+        getFileToUpLoad(file) {
+            var token = localStorage.getItem('token');
+            let self = this;
+            this.spinShow = true;
+            self.axios.post(`${baseUrl}/account/uploadDocumentsImage`, 
+            file, 
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: "bearer " + token
+                }
+            })
+            .then((result) => {
+                this.filePath = result.data;
+                this.$Message.success('تم رفع الملف بنجاح');
+                this.spinShow = false;
+                this.updateUserImagesModal = false;
+                this.updateDocs(this.filePath);
+            }).catch((err) => {
+                this.$Message.error('حدث خطاء في اضافة البيانات');
+                this.spinShow = false;
+                this.updateUserImagesModal = false;
+            });
+        },
 
+        updateDocs(path) {
+            var token = localStorage.getItem('token');
+            let self = this;
+            self.axios.put(`${baseUrl}/account/addUserDocuments`,
+            {
+                mobileNumber: this.forUpdateMobile,
+                userDocumentsImages: path
+            },
+            {
+                headers: {
+                    Authorization: 'bearer ' + token,
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            }).then((result) => {
+                this.spinShow = false;
+                this.fmodal = false;
+            }).catch((err) => {
+                this.spinShow = false;
+                this.fmodal = false;
+            });
+        },
         formatDate(date) {
             return moment(date).format('YYYY-M-D');
         },
@@ -483,6 +560,7 @@ export default {
                 this.username = result.data.username;
                 this.mobileNumber = result.data.userInfo.mobileNo;
                 this.address = result.data.userInfo.address1;
+                this.address2 = result.data.userInfo.address2;
                 this.validTo = result.data.userInfo.validTo;
                 var role = result.data.userRole;
                 var roleId = [];
@@ -528,22 +606,30 @@ export default {
         },
         update(id) {
             let object = {
-                Id: id,
-                Username: this.username,
-                ValidTo: this.validTo,
-                MobileNo: this.mobileNumber,
-                Address1: this.address
+                id: id,
+                mobileNo: this.mobileNumber,
+                address1: this.address,
+                address2: this.address2
             };
+            let uid = id;
             let token = localStorage.getItem('token');
             let self = this;
-            self.axios.put(`${baseUrl}/users/updateProvider`, 
-            object,
+
+            console.log(object);
+            self.axios.put(`${baseUrl}/users/updateUserInfo`, 
+            {
+                id: uid,
+                mobileNo: this.mobileNumber,
+                address1: this.address,
+                address2: this.address2
+            },
             {
                 headers: {
                     Authorization: "bearer " + token
                 }
             }).then((result) => {
                 this.$Message.success("تم التحديث بنجاح");
+                this.modal1 = false;
             }).catch((err) => {
                 this.$Message.error("حدث خطاء في تحديث البيانات");
             });
@@ -612,8 +698,10 @@ export default {
                 this.isAdminCheckd = true;
             }if(rows.includes(2)) {
                 this.isProviderCheckd = true;
-            }if(rows.includes(3)) {
-                this.isUserCheckd = true;
+            }if(rows.includes(5)) {
+                this.isAdminAddCheckd = true;
+            }if(rows.includes(6)) {
+                this.isSupportChecked = true;
             }if(rows.includes(4)) {
                 this.isSuperAdminCheckd = true;
             }
@@ -626,7 +714,9 @@ export default {
                 id: id,
                 isPrvdRole: 0,
                 isAdmnRole: 0,
-                isSupAdmnRole: 0
+                isSupAdmnRole: 0,
+                isAdminAdd: 0,
+                isReportSupport: 0
             };
             let token = localStorage.getItem('token');
             let self = this;
@@ -635,19 +725,26 @@ export default {
                      vals.isAdmnRole = 1;
                  } else if($(valueOfElement).val() == 2) {
                      vals.isPrvdRole = 1;
+                 } else if($(valueOfElement).val() == 5) {
+                     vals.isAdminAdd = 1;
+                 } else if($(valueOfElement).val() == 6) {
+                     vals.isReportSupport = 1;
                  } else if($(valueOfElement).val() == 4) {
                      vals.isSupAdmnRole = 1;
                  } else {
                      console.log('is user');
+                     return false;
                  }
             });
+
+            console.log(vals);
 
             self.axios.put(`${baseUrl}/users/privilege`, vals, {headers:{Authorization: 'bearer ' + token }})
             .then((result) => {
                 console.log(result);
                 this.$Message.success("تم تعديل الصلاحيات بنجاح");
             }).catch((err) => {
-                console.error(err);
+                console.error(JSON.stringify(err));
                 this.$Message.error('حدث خطاء في تعديل الصلاحيات');
             });
         }

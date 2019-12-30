@@ -123,6 +123,7 @@ export default {
             headerUpload: {},
             fmodal: false,
             spinShow: false,
+            files: '',
         }
     },
     mounted() {
