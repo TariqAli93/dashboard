@@ -1,1 +1,1 @@
-module.exports = "http://mehtaj.srittwo.me/";
+module.exports = "http://mehtaj.srittwo.me";
