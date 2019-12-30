@@ -1,7 +1,10 @@
 <template>
   <div id="#home" class="h-100">
       <div class="d-flex flex-column h-100 w-100 align-items-center justify-content-center">
-          
+          <h1>
+              مرحبا بك {{ username }} 
+          </h1>
+          <p>قم بتصفح الموقع</p>
       </div>
   </div>
 </template>
@@ -11,81 +14,13 @@ import baseUrl from '../apis';
 export default {
     data() {
         return {
-            users: '',
-            providers: '',
-            admins: '',
-            Superadmins: '',
+            username: ''
         }
     },
     mounted() {
         let token = localStorage.getItem('token');
         let self = this;
-        
-        // get admin
-        self.axios.get(`${baseUrl}/users/getUsers?RoleId=1`,
-        {
-            headers: {
-                Authorization: "bearer " + token
-            }
-        }).then((result) => {
-         
-            this.admins = result.data.length;
-        }).catch((err) => {
-            console.log(err);
-        });
-
-        // get providers
-        self.axios.get(`${baseUrl}/users/getUsers?RoleId=2`,
-        {
-            headers: {
-                Authorization: "bearer " + token
-            }
-        }).then((result) => {
-         
-            this.providers = result.data.length;
-        }).catch((err) => {
-            console.log(err);
-        });
-
-        // get users
-        self.axios.get(`${baseUrl}/users/getUsers?RoleId=3`,
-        {
-            headers: {
-                Authorization: "bearer " + token
-            }
-        }).then((result) => {
-         
-            this.users = result.data.length;
-        }).catch((err) => {
-            console.log(err);
-        });
-
-        // get superadmins
-        self.axios.get(`${baseUrl}/users/getUsers?RoleId=4`,
-        {
-            headers: {
-                Authorization: "bearer " + token
-            }
-        }).then((result) => {
-         
-            this.Superadmins = result.data.length;
-        }).catch((err) => {
-            console.log(err);
-        });
-
-        let data = {
-            datasets: [{
-                data: [this.users, this.providers, this.admins, this.Superadmins]
-            }],
-
-            // These labels appear in the legend and in the tooltips when hovering different arcs
-            labels: [
-                'Users',
-                'Providers',
-                'Admins',
-                'SuperAdmins'
-            ]
-        };
+        this.username = this.parseJwt(token).username;
     },
     methods: {
         parseJwt(token) {

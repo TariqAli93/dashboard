@@ -20,18 +20,34 @@
                     </div>
 
                     <div class="card-footer">
-                        <button class="btn btn-primary btn-block" @click="showMessage(message)">عرض الرسالة</button>
+                        <div class="btn-group w-100">
+                            <button class="btn btn-primary w-50" @click="showMessage(message)"><Icon type="ios-chatboxes-outline" /></button>
+                            <button class="btn btn-info w-50" @click="getUserInfo(message.user.username); modal2 = true;"><Icon type="ios-information-circle-outline" /></button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
       </div>
 
-    <Modal footer-hide v-model="modal1">
+    <Modal footer-hide v-model="modal1" width="650">
         <div slot="header">
         عرض الرسالة
         </div>
-        {{ content }}
+        <blockquote class="blockquote">
+            <p class="mb-0">{{ content }}</p>
+        </blockquote>
+    </Modal>
+
+    <Modal footer-hide v-model="modal2" @on-cancel="mobileNumber = ''">
+        <div slot="header">
+        رقم الهاتف  
+        </div>
+        <a :href="'tel:' + mobileNumber"><p class="text-center" style="font-weight: bolder; font-size: 30px; direction: ltr;">{{ mobileNumber }}</p></a>
+        <Spin v-show="isLoading" fix>
+            <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+            <div>Loading</div>
+        </Spin>
     </Modal>
   </div>
 </template>
@@ -44,14 +60,16 @@ export default {
             messages: '',
             content: '',
             modal1: false,
+            modal2: false,
             userid: [],
             token: '',
+            isLoading: false,
             messageId: '',
+            mobileNumber: '',
         }
     },
     mounted() {
         let token = localStorage.getItem('token');
-
         this.axios.get(`${baseUrl}/support/getSupportRequests`, 
         {
             headers: {
@@ -59,7 +77,6 @@ export default {
             }
         }).then((result) => {
             this.messages = result.data;
-            console.log(result.data);
         }).catch((err) => {
             console.error(err);
         });
@@ -68,12 +85,39 @@ export default {
         showMessage(message) {
             this.content = message.message;
             this.modal1 = true;
+        },
+
+        getUserInfo(name) {
+            let self = this;
+            let token = localStorage.getItem('token');
+            this.isLoading = true;
+
+            self.axios.get(`${baseUrl}/users/getUsers?Username=${name}`, 
+            {
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            }).then((result) => {
+                this.isLoading = false;
+                this.mobileNumber = result.data[0].userInfo.mobileNo;
+            }).catch((err) => {
+                this.isLoading = false;
+                throw new Error(err);
+            });
         }
     }
 }
 </script>
 
 <style lang="scss" scoped>
+ .demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+    @keyframes ani-demo-spin {
+        from { transform: rotate(0deg);}
+        50%  { transform: rotate(180deg);}
+        to   { transform: rotate(360deg);}
+    }
 #support {
     display: block;
     height: 100%;

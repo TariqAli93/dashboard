@@ -451,6 +451,7 @@ export default {
           })
           .then((res) => {
             this.spinShow = false;
+            this.modal1 = false;
           }).catch((reserr) => {
             this.spinShow = false;
           });

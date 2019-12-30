@@ -105,6 +105,7 @@
         </div>
         <div id="main-content">
             <router-view />
+            <BackTop></BackTop>
         </div>
       </div>
 
@@ -137,7 +138,7 @@
           </form>
 
           <div class="copyright">
-              <span>جميع الحقوق محفوظة لشركة <a href="#">المصادر الذكية</a></span>
+              <span> جميع الحقوق محفوظة لشركة <a href="http://smartresourcestm.org/" target="_blank">المصادر الذكية لتكنلوجيا المعلومات</a></span>
           </div>
       </div>
   </div>

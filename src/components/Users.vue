@@ -24,7 +24,8 @@
                             <th scope="col">صلاحيات</th>
                             <th scope="col">تاريخ الانشاء</th>
                             <th scope="col">تاريخ الانتهاء</th>
-                            <th scope="col">تعديل / حذف</th>
+                            <th scope="col">الحالة</th>
+                            <th scope="col">الاجرائات</th>
                             <th scope="col">تفعيل / تعطيل</th>
                         </tr>
                     </thead>
@@ -44,22 +45,27 @@
                             </td>
                             <td scope="row">{{ formatDate(data.validFrom) }}</td>
                             <td scope="row">
-                                <span v-if="isExpierd(formatDate(data.validTo))"> {{ formatDate(data.validTo) }}</span>
+                                <span v-if="isExpierd(formatDate(data.validTo)) == false"><b class="date-number">{{ formatDate(data.validTo) }}</b></span>
                                 <span v-else style="color: red;">الحساب منتهي</span>
+                            </td>
+                            <td scope="row">
+                                <span v-if="data.isActive == 1"><b class="active-status">مفعل</b></span>
+                                <span v-else><b class="active-status">غير مفعل</b></span>
                             </td>
                             <td scope="row">
                                 <div class="btn-group">
                                     <button class="btn btn-success" @click="newPassModal = true; newPassId = data.id"><Icon type="ios-lock" /></button>
-                                    <button v-show="data.userInfo.userDocumentsImages" class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages)"><Icon type="ios-images-outline" /></button>
+                                    <button class="btn btn-primary" @click="showImages(data.userInfo.userDocumentsImages)"><Icon type="ios-images-outline" /></button>
+                                    <button class="btn btn-info" @click="privilegeModal = true; privilegRoles = data.userRole; privilegId = data.id; getRoleById(privilegRoles)"><Icon type="ios-list-box-outline" /></button>
                                     <!-- <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button> -->
+                                    <!-- <button class="btn btn-warning" @click=""><Icon type="ios-cog-outline" /></button> -->
                                     <button class="btn btn-danger" @click="doDeleteSuperAdmin(data.id, index);"><Icon type="ios-trash-outline" /></button>
                                 </div>
                             </td>
                             <td scope="row">
-                                <i-switch :before-change="confirmChange" @on-change="activeUser(data.id)" :value="data.isActive == 1 ? true : false">
-                                    <Icon type="md-checkmark" slot="open"></Icon>
-                                    <Icon type="md-close" slot="close"></Icon>
-                                </i-switch>
+                                <button class="btn btn-success rounded-0 btn-block" @click="activeModal = true; activeModalId = data.id; activeModalNum = data.isActive">
+                                    <Icon type="ios-cog-outline" />
+                                </button>
                             </td>
                         </tr>  
                     </tbody>
@@ -146,6 +152,70 @@
                 <button class="btn btn-primary btn-block">تغير كلمة المرور</button>
             </form>
         </Modal>
+
+        <Modal v-model="privilegeModal" footer-hide width="600" @on-cancel="isAdminCheckd = false; isProviderCheckd = false; isUserCheckd = false; isSuperAdminCheckd = false">
+            <div slot="header">
+                <h4>تغير الصلاحيات</h4>
+            </div>
+
+            <form @submit.prevent="check($event)">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" :checked="isAdminCheckd" type="checkbox" id="adminCheck" :value="1">
+                    <label class="form-check-label" for="adminCheck">Admin</label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" :checked="isProviderCheckd" type="checkbox" id="providerCheck" :value="2">
+                    <label class="form-check-label" for="providerCheck">Provider</label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" :checked="isUserCheckd" type="checkbox" id="userCheck" :value="3">
+                    <label class="form-check-label" for="userCheck">user</label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" :checked="isSuperAdminCheckd" type="checkbox" id="SuperAdminCheck" :value="4">
+                    <label class="form-check-label" for="SuperAdminCheck">SuperAdmin</label>
+                </div>
+
+                <button class="btn btn-block btn-primary">تعديل</button>
+            </form>
+        </Modal>
+
+        <Modal v-model="activeModal" footer-hide width="600">
+            <div slot="header">
+                <h4>تفعيل / الغاء التفعيل المستخدم</h4>
+            </div>
+
+            <form @submit.prevent="activeUser(activeModalId)">
+                <div class="form-group">
+                    <label for="validFrom">تاريخ الانشاء</label>
+                    <input type="text" disabled id="validFromChangeDate" v-model="validFromChangeDate" class="form-control" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))">
+                </div>
+
+                <div class="form-group">
+                    <label for="validTo">تاريخ الانتهاء</label>
+                    <input type="date" id="validToChangeDate" v-model="validToChangeDate" class="form-control" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])/(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])/(?:30))|(?:(?:0[13578]|1[02])-31))">
+                </div>
+                <div class="form-group">
+                    <label class="d-block">تفعيل / الغاء التفعيل</label>
+                    <i-switch class="activeUserSwitch" :before-change="confirmChange" :value="activeModalNum == 1 ? true : false">
+                        <Icon type="md-checkmark" slot="open"></Icon>
+                        <Icon type="md-close" slot="close"></Icon>
+                    </i-switch>
+                </div>
+                <button class="btn btn-block btn-primary">تعديل</button>
+            </form>
+        </Modal>
+
+        <Spin v-show="isLoading" fix>
+            <div class="loader">
+                <svg class="circular" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="5" stroke-miterlimit="10"></circle>
+                </svg>
+            </div>
+        </Spin>
   </div>
 </template>
 
@@ -156,6 +226,7 @@ import imagesFolder from '../imagePath';
 export default {
     data() {
         return {
+            isLoading: false,
             users: '',
             modal1: false,
             carouselModal: false,
@@ -180,6 +251,23 @@ export default {
             newPassModal: false,
             newPassId: '',
             isActive: true,
+            privilegeModal: false,
+            privilegId: '',
+            privilegRoles: '',
+            isUserCheckd: false,
+            isProviderCheckd: false,
+            isAdminCheckd: false,
+            isSuperAdminCheckd: false,
+            userCheckBox: '',
+            providerCheckBox: '',
+            adminCheckBox: '',
+            SuperAdminCheckBox: '',
+            activeModal: false,
+            activeModalId: '',
+            activeModalNum: 0,
+            validFromChangeDate: this.today(),
+            validToChangeDate: '',
+            validToDis: '',
             governorate: [
             {
               "name":'اربيل',
@@ -257,38 +345,60 @@ export default {
         }
     },
     mounted() {
+        this.isLoading = true;
         this.getAllUsers();
-        this.getUserByRoleId(2);
     },
     methods: {
         activeUser(id) {
             let self = this;
             let token = localStorage.getItem('token');
-            let active = '';
+            let isActive;
+            let validTo = moment(this.validToChangeDate).format('YYYY-M-D');
+            let validFrom = this.today();
+            // $('#validToChangeDate').valueAsDate = this.validTo;
+            document.getElementById("validToChangeDate").value = "2014-02-09";
+            this.validToDis = validTo;
 
-            self.axios.get(`${baseUrl}/users/getUserInfo?userId=${id}`,
-            {
-                headers: {
-                    Authorization: 'bearer ' + token
-                }
-            }).then((result) => {
-                active = result.data.isActive;
-                self.axios.put(`${baseUrl}/users/userValidty`,{
+            if($('.activeUserSwitch input').val() === "true") {
+                isActive = 1;
+            } else {
+                isActive = 0;
+            }
+            let object = {
+                id: id,
+                isActive: isActive,
+                validFrom: validFrom,
+                validTo: validTo
+            };
+
+            if(object.validTo === "Invalid date") {
+                self.$Message.error("لا يمكن ترك التاريخ فارغ");
+                return false;
+            } else if(object.validTo < this.today()) {
+                self.$Message.error("التاريخ قديم لا يمكن اعتماده");
+                return false;
+            } else {
+                self.axios.put(`${baseUrl}/users/userValidty`, 
+                {
                     id: id,
-                    isActive: active == 1 ? 0 : 1
+                    isActive: isActive,
+                    validFrom: validFrom,
+                    validTo: validTo
                 },
                 {
                     headers: {
-                        Authorization: 'bearer ' + token
+                        Authorization: 'bearer ' + token,
+                        "Content-Type": "application/json"
                     }
-                }).then((d) => {
-                    console.log(d);
-                }).catch((dr) => {
-                    console.error(dr);
+                }).then((result) => {
+                    self.$Message.success('تم التحديث بنجاح');
+                    this.activeModal = false;
+                }).catch((err) => {
+                    self.$Message.error("حدث خطاء في تحديث البيانات")
+                    throw new Error(JSON.stringify(err));
                 });
-            }).catch((err) => {
-                console.error(err);
-            });
+                return true;
+            }
         },
         confirmChange() {
             return new Promise((resolve) => {
@@ -315,15 +425,19 @@ export default {
         },
 
         formatDate(date) {
-            return moment(date).format('D/M/YYYY');
+            return moment(date).format('YYYY-M-D');
         },
-
+        today() {
+            let day = new Date();
+            return moment(day).format('YYYY-M-D');
+        },
         isExpierd(date) {
-            let today = moment().format("D/M/YYYY");
+            let day = new Date();
+            let today = moment(day).format("YYYY-M-D");
             if(today >= date) {
-                return false;
-            } else {
                 return true;
+            } else {
+                return false;
             }
         },
         getAllUsers() {
@@ -338,6 +452,7 @@ export default {
                 this.users = result.data;
                 let leng = result.data.length;
                 this.usersFilterd = result.data;
+                this.isLoading = false;
             }).catch((err) => {
                 console.error(err);
             });
@@ -482,8 +597,58 @@ export default {
             }).then((result) => {
                 this.$Message.success("تم تغير كلمة المرور");
                 this.newPassword = '';
+                this.newPassModal = false;
             }).catch((err) => {
                 this.$Message.error('حدث خطاء في تغير كلمة المرور');
+            });
+        },
+        getRoleById(role) {
+            let rows = [];
+            for(let row of role) {
+                rows.push(row.roleId)
+            }
+
+            if(rows.includes(1)) {
+                this.isAdminCheckd = true;
+            }if(rows.includes(2)) {
+                this.isProviderCheckd = true;
+            }if(rows.includes(3)) {
+                this.isUserCheckd = true;
+            }if(rows.includes(4)) {
+                this.isSuperAdminCheckd = true;
+            }
+        },
+
+        check(e) {
+            let checkboxs = $('.form-check input:checked[type="checkbox"]');
+            let id = this.privilegId;
+            let vals = {
+                id: id,
+                isPrvdRole: 0,
+                isAdmnRole: 0,
+                isSupAdmnRole: 0
+            };
+            let token = localStorage.getItem('token');
+            let self = this;
+            $.each(checkboxs, function (indexInArray, valueOfElement) { 
+                 if($(valueOfElement).val() == 1) {
+                     vals.isAdmnRole = 1;
+                 } else if($(valueOfElement).val() == 2) {
+                     vals.isPrvdRole = 1;
+                 } else if($(valueOfElement).val() == 4) {
+                     vals.isSupAdmnRole = 1;
+                 } else {
+                     console.log('is user');
+                 }
+            });
+
+            self.axios.put(`${baseUrl}/users/privilege`, vals, {headers:{Authorization: 'bearer ' + token }})
+            .then((result) => {
+                console.log(result);
+                this.$Message.success("تم تعديل الصلاحيات بنجاح");
+            }).catch((err) => {
+                console.error(err);
+                this.$Message.error('حدث خطاء في تعديل الصلاحيات');
             });
         }
     }
@@ -516,4 +681,18 @@ export default {
         }
     }
 }
+
+.demo-spin-icon-load{
+        animation: ani-demo-spin 1s linear infinite;
+    }
+    @keyframes ani-demo-spin {
+        from { transform: rotate(0deg);}
+        50%  { transform: rotate(180deg);}
+        to   { transform: rotate(360deg);}
+    }
+    .demo-spin-col{
+        height: 100px;
+        position: relative;
+        border: 1px solid #eee;
+    }
 </style>
