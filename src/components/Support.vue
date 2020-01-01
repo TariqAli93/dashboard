@@ -22,7 +22,7 @@
                     <div class="card-footer">
                         <div class="btn-group w-100">
                             <button class="btn btn-primary w-50" @click="showMessage(message)"><Icon type="ios-chatboxes-outline" /></button>
-                            <button class="btn btn-info w-50" @click="getUserInfo(message.user.username); modal2 = true;"><Icon type="ios-information-circle-outline" /></button>
+                            <button class="btn btn-info w-50" @click="mobileNumber = message.user.userInfo.mobileNo; modal2 = true;"><Icon type="ios-information-circle-outline" /></button>
                         </div>
                     </div>
                 </div>
@@ -86,25 +86,6 @@ export default {
             this.content = message.message;
             this.modal1 = true;
         },
-
-        getUserInfo(name) {
-            let self = this;
-            let token = localStorage.getItem('token');
-            this.isLoading = true;
-
-            self.axios.get(`${baseUrl}/users/getUsers?Username=${name}`, 
-            {
-                headers: {
-                    Authorization: 'bearer ' + token
-                }
-            }).then((result) => {
-                this.isLoading = false;
-                this.mobileNumber = result.data[0].userInfo.mobileNo;
-            }).catch((err) => {
-                this.isLoading = false;
-                throw new Error(err);
-            });
-        }
     }
 }
 </script>

@@ -183,7 +183,6 @@ export default {
             Authorization: 'bearer ' + token
           }
         }).then((result) => {
-          console.log(result);
           this.admins = result.data;
         }).catch((err) => {
           console.error(err);
@@ -199,7 +198,6 @@ export default {
                     Authorization: 'bearer ' + token
                 }
             }).then((result) => {
-                console.log(result);
                 this.result = result.data;
                 this.showTable = true;
                 this.dataSize = result.data.length;
@@ -229,7 +227,6 @@ export default {
                     Authorization: 'bearer ' + token
                 }
             }).then((result) => {
-                console.log(result);
                 this.result = result.data;
                 this.showTable = true;
                 this.dataSize = result.data.length;
@@ -237,8 +234,6 @@ export default {
             }).catch((err) => {
               this.spinShow = false;
             });
-
-            console.log(ActionCode)
         },
         getLogByGover(Government) {
             let token = localStorage.getItem('token');
@@ -249,7 +244,6 @@ export default {
                     Authorization: 'bearer ' + token
                 }
             }).then((result) => {
-                console.log(result);
                 this.result = result.data;
                 this.showTable = true;
                 this.dataSize = result.data.length;

@@ -293,7 +293,7 @@ export default {
                         this.$Message.error("لا تمتلك الصلاحيات المناسبة لتسجيل الدخول")
                     }
                 }).catch((err) => {
-                    console.log(err);
+                    console.error(err);
                     this.$Loading.error();
                     this.spinShow = false;
                     

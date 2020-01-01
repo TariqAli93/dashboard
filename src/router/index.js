@@ -64,7 +64,6 @@ const routes = [
     name: 'print',
     component: Print
   }
-
 ]
 
 const router = new VueRouter({

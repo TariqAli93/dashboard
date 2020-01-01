@@ -8,12 +8,12 @@
           <div class="row w-100 mt-5 mb-5">
               <div class="col">
                 <div class="form-group">
-                    <input type="search" v-model="search" @input="filterMethod" class="form-control d-block w-100 form-control-lg" placeholder="ابحث في المستخدمين">
+                    <input type="search" v-model="search" v-on:keyup="filterMethod($event)" class="form-control d-block w-100 form-control-lg" placeholder="ابحث حسب رقم الهاتف">
                 </div>
               </div>
           </div>
           <div class="custom-table w-100 ">
-              <div class="table-responsive-xl">
+              <div class="table-responsive">
                 <table class="table table-borderless ">
                     <thead class="thead-dark">
                         <tr>
@@ -26,7 +26,6 @@
                             <th scope="col">تاريخ الانتهاء</th>
                             <th scope="col">الحالة</th>
                             <th scope="col">الاجرائات</th>
-                            <th scope="col">تفعيل / تعطيل</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,14 +44,17 @@
                                     <b v-else>User </b>
                                 </span>
                             </td>
-                            <td scope="row">{{ formatDate(data.validFrom) }}</td>
                             <td scope="row">
-                                <span v-if="isExpierd(formatDate(data.validTo)) == false"><b class="date-number">{{ formatDate(data.validTo) }}</b></span>
-                                <span v-else style="color: red;">الحساب منتهي</span>
+                                {{ formatDate(data.createdAt) }}
+                            </td>
+                            <td scope="row">
+                                <span v-if="data.validTo.includes('0001-01-01T00')">-</span>
+                                <span v-else-if="isExpierd(formatDate(data.validTo)) == false"><b class="date-number">{{ formatDate(data.validTo) }}</b></span>
+                                <span v-else style="color: red;">{{ formatDate(data.validTo) }} </span>
                             </td>
                             <td scope="row">
                                 <span v-if="data.isActive == 1"><b class="active-status">مفعل</b></span>
-                                <span v-else><b class="active-status">غير مفعل</b></span>
+                                <span v-else><b class="active-status" style="color: red;">غير مفعل</b></span>
                             </td>
                             <td scope="row">
                                 <div class="btn-group">
@@ -61,12 +63,10 @@
                                     <button class="btn btn-info" @click="privilegeModal = true; privilegRoles = data.userRole; privilegId = data.id; getRoleById(privilegRoles)"><Icon type="ios-list-box-outline" /></button>
                                     <button class="btn btn-warning" @click="modal1 = true; updateId = data.id; defaultUserAccount(data.userInfo.mobileNo)"><Icon type="ios-create-outline" /></button>
                                     <button class="btn btn-danger" @click="doDeleteSuperAdmin(data.id, index);"><Icon type="ios-trash-outline" /></button>
+                                    <button class="btn btn-success rounded-0 btn-block" @click="activeModal = true; activeModalId = data.id; activeModalNum = data.isActive">
+                                        <Icon type="ios-cog-outline" />
+                                    </button>
                                 </div>
-                            </td>
-                            <td scope="row">
-                                <button class="btn btn-success rounded-0 btn-block" @click="activeModal = true; activeModalId = data.id; activeModalNum = data.isActive">
-                                    <Icon type="ios-cog-outline" />
-                                </button>
                             </td>
                         </tr>  
                     </tbody>
@@ -216,7 +216,7 @@
             </form>
         </Modal>
 
-        <Modal v-model="updateUserImagesModal" :closable="false" :mask-closable="false" footer-hide title="رفع المستمساكت">
+        <Modal v-model="updateUserImagesModal" :closable="true" :mask-closable="true" footer-hide title="رفع المستمساكت">
             <form>
                 <div class="form-group">
                     <label for="fileToUp">ارفع المستمساكت</label>
@@ -291,6 +291,8 @@ export default {
             validToDis: '',
             files: '',
             filePath: '',
+            showDateProvider: [],
+            mobileNumbers: [],
             governorate: [
             {
               "name":'اربيل',
@@ -478,7 +480,6 @@ export default {
                 this.updateUserImagesModal = false;
             });
         },
-
         updateDocs(path) {
             var token = localStorage.getItem('token');
             let self = this;
@@ -526,7 +527,7 @@ export default {
                     Authorization: "bearer " + token
                 }
             }).then((result) => {
-                this.users = result.data;
+                this.users = result.data.reverse();
                 let leng = result.data.length;
                 this.usersFilterd = result.data;
                 this.isLoading = false;
@@ -536,9 +537,9 @@ export default {
         },
         filterMethod(e) {
             let self = this;
-            var filters = self.users.filter(data => data.username.includes(self.search));
+            var filters = self.users.filter(data => data.userInfo.mobileNo.includes(self.search));
 
-            if(e.target.value < 1 && filters.length > 0) {
+            if(e.target.value < 3 && filters.length > 0) {
                 self.users = self.usersFilterd;
             } else {
                 if(filters.length > 0) {
@@ -548,7 +549,6 @@ export default {
                 }
             }
         },
-
         defaultUserAccount(mobile) {
             let token = localStorage.getItem('token');
             this.axios.get(`${baseUrl}/users/getUserByMobile?mobileNumber=${mobile}`,
@@ -578,7 +578,6 @@ export default {
                 console.error(err);
             });
         },
-
         doDeleteSuperAdmin(id, index) {
             let token = localStorage.getItem('token');
             let self = this;
@@ -601,8 +600,6 @@ export default {
             }).catch((err) => {
                 console.error(err);
             });
-
-            console.log(roleId);
         },
         update(id) {
             let object = {
@@ -615,7 +612,6 @@ export default {
             let token = localStorage.getItem('token');
             let self = this;
 
-            console.log(object);
             self.axios.put(`${baseUrl}/users/updateUserInfo`, 
             {
                 id: uid,
@@ -634,7 +630,6 @@ export default {
                 this.$Message.error("حدث خطاء في تحديث البيانات");
             });
         },
-
         remove(id, index) {
             let self = this;
             var confirmDelete = confirm("هل انت واثق من حذف هذا المستخدم");
@@ -647,12 +642,11 @@ export default {
                         Authorization: "bearer " + token
                     }
                 }).then((result) => {
-                    console.log(result);
                     this.users.splice(index, 1);
                     this.$Message.success('تم الخذف بنجاح');
                     this.$Loading.finish();
                 }).catch((err) => {
-                    console.log(err);
+                    console.error(err);
                     this.$Message.error('خطاء في حذف المستخدم');
                     this.$Loading.error();
                 });
@@ -661,11 +655,9 @@ export default {
                 return false;
             }
         },
-
         doDelete() {
             this.confirmDelete = true;
         },
-
         changePassword(id) {
             let token = localStorage.getItem('token');
             let self = this;
@@ -673,7 +665,6 @@ export default {
                 id: id,
                 password: this.newPassword
             };
-
             self.axios.put(`${baseUrl}/users/resetPasswordWeb`,
             object,
             {
@@ -693,7 +684,6 @@ export default {
             for(let row of role) {
                 rows.push(row.roleId)
             }
-
             if(rows.includes(1)) {
                 this.isAdminCheckd = true;
             }if(rows.includes(2)) {
@@ -706,7 +696,6 @@ export default {
                 this.isSuperAdminCheckd = true;
             }
         },
-
         check(e) {
             let checkboxs = $('.form-check input:checked[type="checkbox"]');
             let id = this.privilegId;
@@ -732,16 +721,11 @@ export default {
                  } else if($(valueOfElement).val() == 4) {
                      vals.isSupAdmnRole = 1;
                  } else {
-                     console.log('is user');
                      return false;
                  }
             });
-
-            console.log(vals);
-
             self.axios.put(`${baseUrl}/users/privilege`, vals, {headers:{Authorization: 'bearer ' + token }})
             .then((result) => {
-                console.log(result);
                 this.$Message.success("تم تعديل الصلاحيات بنجاح");
             }).catch((err) => {
                 console.error(JSON.stringify(err));
@@ -769,7 +753,7 @@ export default {
 
         p {
             font-size: 25px;
-            color: #0000002e;
+            color: #b38deb;
             border: 2px solid;
             padding: 20px;
             border-radius: 50px;

@@ -69,7 +69,6 @@ export default {
             Authorization: 'bearer ' + token
           }
         }).then((result) => {
-          console.log(result);
           this.providers = result.data;
         }).catch((err) => {
           console.error(err);
@@ -85,7 +84,6 @@ export default {
               Authorization: 'bearer ' + token
             }
           }).then((result) => {
-            console.log(result);
             this.getRequest(result.data[0].id);
             this.spinShow = false;
           }).catch((err) => {
@@ -107,7 +105,6 @@ export default {
               Authorization: 'bearer ' + token
             }
           }).then((result) => {
-            console.log(result);
             this.request = result.data;
             this.spinShow = false;
             this.showTable = true;

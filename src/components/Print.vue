@@ -134,7 +134,6 @@ export default {
         };
         this.params = this.$route.params.object;
         this.params2 = this.$route.params.areas;
-        console.log(this.$route.params);
         this.getJobName(this.params.categoryId);
         this.spinShow = true;
         setTimeout(() => {
@@ -186,8 +185,6 @@ export default {
         updateDocs(path) {
             var token = localStorage.getItem('token');
             let self = this;
-            console.log(path)
-            console.log(this.params.mobileNo)
             self.axios.put(`${baseUrl}/account/addUserDocuments`,
             {
                 mobileNumber: self.params.mobileNo,
@@ -216,9 +213,8 @@ export default {
                 }
             }).then((result) => {
                 this.job = result.data.name;
-                console.log(this.job);
             }).catch((err) => {
-                console.log(err);                
+                console.error(err);                
             });
         },
     }

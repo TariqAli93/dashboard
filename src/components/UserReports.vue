@@ -255,7 +255,6 @@ export default {
                 }).catch((err) => {
                     this.spinShow = false;
                 });
-                console.log(`${baseUrl}/users/getUsers?CategoryId=${query}`);
             } else {
                 this.showTable = false;
             }

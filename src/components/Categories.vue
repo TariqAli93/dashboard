@@ -48,8 +48,8 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="name">اسم التصنيف</label>
-                        <input type="text" required name="name" id="name" class="form-control" v-model="name">
+                        <label for="name1">اسم التصنيف</label>
+                        <input type="text" required name="name" id="name1" class="form-control" v-model="name">
                     </div>
                 </div>
                 <div class="col">
@@ -126,7 +126,6 @@
                     }
                 }).then((result) => {
                     this.categories = result.data;
-                    console.log(this.categories)
                 }).catch((err) => {
                     console.error(err);
                 });
@@ -150,7 +149,6 @@
                     }
                 })
                 .then((result) => {
-                    console.log(result);
                     this.filePath = result.data;
                     this.$Message.success('تم رفع الملف بنجاح');
                     this.$Loading.finish();
@@ -221,7 +219,6 @@
                 }).then((result) => {
                     this.name = result.data.name;
                     this.imageUri = result.data.imageUri;
-                    console.log(result.data);
                 }).catch((err) => {
                     console.error(err);
                 });
@@ -243,7 +240,6 @@
                         Authorization: "bearer " + token
                     }
                 }).then((result) => {
-                    console.log(result);
                     this.$Message.success('تمت التحديث بنجاح');
                     this.$Loading.finish();
                 }).catch((err) => {
@@ -266,7 +262,7 @@
                             Authorization: "bearer " + token
                         }
                     }).then((result) => {
-                        console.log(result);
+                        this.$Message.success("تم الحذف بنجاح");
                     }).catch((err) => {
                         console.error(err);
                     });
