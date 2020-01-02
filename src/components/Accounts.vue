@@ -15,6 +15,10 @@
       <Modal v-model="modal1" footer-hide width="900" :closable="closeableModal" :mask-closable="closeableModal">
           <div class="modal-content">
             <div>
+              <Spin fix v-show="spinShow" size="large">
+                  <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                  <div>جاري تحميل البيانات</div>
+              </Spin>
               <form class="provider-form" method="post" @submit.prevent="createProvider">
                 <div class="row">
                   <div class="col">
@@ -116,13 +120,9 @@
                       </div>
                     </div>
                   </div>
-
-                  <div class="col">
-                    
-                  </div>
                 </div>
 
-                <button class="btn btn-primary btn-block">تسجيل</button>
+                <button class="btn btn-primary btn-block" :disabled="createAdminButtonStatus">تسجيل</button>
               </form>
             </div>
           </div>
@@ -131,6 +131,10 @@
       <Modal v-model="modal2" footer-hide width="900" :closable="closeableModal" :mask-closable="closeableModal">
           <div class="modal-content">
             <div>
+              <Spin fix v-show="spinShow" size="large">
+                  <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                  <div>جاري تحميل البيانات</div>
+              </Spin>
               <form class="provider-form" method="post" @submit.prevent="createAdmin">
                 <div class="row">
                   <div class="col">
@@ -182,7 +186,7 @@
                   </div>
                 </div>
 
-                <button class="btn btn-primary btn-block">تسجيل</button>
+                <button class="btn btn-primary btn-block" :disabled="createAdminButtonStatus">تسجيل</button>
               </form>
             </div>
           </div>
@@ -209,13 +213,6 @@
                 </div>
 
                 <div class="row">
-                  <!-- <div class="col">
-                    <div class="form-group">
-                      <label for="fileToUp">مستمسكات الزبون</label>
-                      <input type="file" required multiple class="form-control" id="fileToUp" name="fileToUp" @change="getFileFromInput">
-                    </div>
-                  </div> -->
-                  
                   <div class="col">
                     <div class="form-group">
                       <label for="mobileNo-3">رقم الهاتف</label>
@@ -277,6 +274,7 @@ export default {
           mahala: '',
           dar: '',
           okDelete: false,
+          createAdminButtonStatus: true,
           governorate: [
             {
               "name":'اربيل',
@@ -379,27 +377,34 @@ export default {
         this.files = file.target.files;
         var data = new FormData();
         let size = [];
-        const reducer = (accumulator, currentValue) => accumulator + currentValue;
-        for(let i =0; i< this.files.length; i++) {
-          size.push(this.files[i].size);
-          if(size.reduce(reducer) < 1060000) {
-            data.append('file', this.files[i]);
-          }
-        }
-
-        if(size.reduce(reducer) > 1060000) {
-          this.$Message.error('حجم الملف كبير جدا');
+        this.spinShow = true;
+        this.createAdminButtonStatus = true;
+        if(this.files.length < 1) {
+          this.spinShow = false;
+          this.createAdminButtonStatus = true;
           return false;
         } else {
-          this.getFileToUpLoad(data);
-          return true;
+          const reducer = (accumulator, currentValue) => accumulator + currentValue;
+          for(let i =0; i< this.files.length; i++) {
+            size.push(this.files[i].size);
+            if(size.reduce(reducer) < 1060000) {
+              data.append('file', this.files[i]);
+            }
+          }
+
+          if(size.reduce(reducer) > 1060000) {
+            this.$Message.error('حجم الملف كبير جدا');
+            return false;
+          } else {
+            this.getFileToUpLoad(data);
+            return true;
+          }
         }
       },
 
       getFileToUpLoad(file) {
         var token = localStorage.getItem('token');
         let self = this;
-        this.spinShow = true;
         self.axios.post(`${baseUrl}/account/uploadDocumentsImage`, 
         file, 
         {
@@ -412,9 +417,11 @@ export default {
           this.filePath = result.data;
           this.$Message.success('تم رفع الملف بنجاح');
           this.spinShow = false;
+          this.createAdminButtonStatus = false;
         }).catch((err) => {
           this.$Message.error('حدث خطاء في اضافة البيانات');
           this.spinShow = false;
+          this.createAdminButtonStatus = false;
         });
       },
       createProvider() {
@@ -447,25 +454,6 @@ export default {
               Authorization: "bearer " + token
             }
         }).then((result) => {
-          let object2 = {
-            userDocumentsImages: this.filePath,
-            mobileNumber: this.mobileNo,
-          };
-          this.spinShow = true;
-          this.axios.put(`${baseUrl}/account/addUserDocuments`,
-          object2,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "bearer " + token
-            }
-          })
-          .then((res) => {
-            this.spinShow = false;
-            this.modal1 = false;
-          }).catch((reserr) => {
-            this.spinShow = false;
-          });
           this.$router.push({name: 'print', params: {object, areas}});
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
@@ -476,6 +464,7 @@ export default {
 
       createAdmin() {
         var token = localStorage.getItem('token');
+        this.spinShow = true;
         let object = {
           username: this.username,
           password: this.password,
@@ -486,7 +475,6 @@ export default {
           address1: this.address,
           userTypeId: 1
         }
-        this.spinShow = true;
         this.axios.post(`${baseUrl}/account/registerAdmin`, 
         object,
         {
@@ -496,24 +484,7 @@ export default {
             }
         }).then((result) => {
           this.spinShow = false;
-          let object2 = {
-            userDocumentsImages: this.filePath,
-            mobileNumber: this.mobileNo,
-          };
-          this.spinShow = true;
-          this.axios.put(`${baseUrl}/account/addUserDocuments`,
-          object2,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "bearer " + token
-            }
-          })
-          .then((res) => {
-            this.spinShow = false;
-          }).catch((reserr) => {
-            this.spinShow = false;
-          });
+          console.log(result);
           this.$Message.success('تم الاضافة بنجاح');
         }).catch((err) => {
           this.$Message.error("حدث خطاء في اضافة البيانات");

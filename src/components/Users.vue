@@ -126,13 +126,15 @@
                 <h4>مستمسكات المستخدم</h4>
             </div>
 
-            <div class="row">
+            <div class="row border-bottom pb-4 mb-3">
                 <div class="col" v-for="img in userImages" :key="img.carousel">
                     <div >
                         <a :href="imageUrl + img" target="_blank"><img :src="imageUrl + img" class="img-thumbnail" style="max-height: 200px"></a>
                     </div>
                 </div>
             </div>
+
+            <button class="btn btn-primary m-auto" @click="updateUserImagesModal = true;">ارفع صورة جديدة</button>
         </Modal>
 
         <Modal v-model="newPassModal" footer-hide width="600">
@@ -267,6 +269,7 @@ export default {
             defaultMobile: '',
             defaultAddress: '',
             defaultDate: '',
+            defaultUserData: '',
             newPassword: '',
             newPassModal: false,
             newPassId: '',
@@ -473,7 +476,7 @@ export default {
                 this.$Message.success('تم رفع الملف بنجاح');
                 this.spinShow = false;
                 this.updateUserImagesModal = false;
-                this.updateDocs(this.filePath);
+                this.users = this.defaultUserData;
             }).catch((err) => {
                 this.$Message.error('حدث خطاء في اضافة البيانات');
                 this.spinShow = false;
@@ -530,6 +533,7 @@ export default {
                 this.users = result.data.reverse();
                 let leng = result.data.length;
                 this.usersFilterd = result.data;
+                this.defaultUserData = result.data;
                 this.isLoading = false;
             }).catch((err) => {
                 console.error(err);
