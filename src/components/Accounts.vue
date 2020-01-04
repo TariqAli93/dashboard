@@ -387,12 +387,12 @@ export default {
           const reducer = (accumulator, currentValue) => accumulator + currentValue;
           for(let i =0; i< this.files.length; i++) {
             size.push(this.files[i].size);
-            if(size.reduce(reducer) < 1060000) {
+            if(size.reduce(reducer) < 5242880) {
               data.append('file', this.files[i]);
             }
           }
 
-          if(size.reduce(reducer) > 1060000) {
+          if(size.reduce(reducer) > 5242880) {
             this.$Message.error('حجم الملف كبير جدا');
             return false;
           } else {
